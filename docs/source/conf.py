@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, "source")
 
 
 # -- Project information -----------------------------------------------------
@@ -20,7 +21,6 @@ sys.path.insert(0, os.path.abspath("../.."))
 project = "pdbsearch"
 copyright = "2021, Sam Ireland"
 author = "Sam Ireland"
-analytics = "UA-51790964-14"
 
 # The full version, including alpha/beta/rc tags
 release = "0.1"
@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
     "sphinx.ext.viewcode",
+    "analytics"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
