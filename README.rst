@@ -1,18 +1,16 @@
 pdbsearch
 =========
 
-atomium is a molecular modeller and file parser, capable of reading from and
-writing to .pdb, .cif and .mmtf files.
+pdbsearch is a Python library for searching for PDB structures using the
+RCSB web services.
 
 Example
 -------
 
-    >>> import atomium
-    >>> pdb = atomium.fetch("5HVD")
-    >>> pdb.model
-    <Model (1 chain, 6 ligands)>
-    >>> pdb.model.chain("A")
-    <Chain A (255 residues)>
+    >>> import pdbsearch
+    >>> codes = pdbsearch.search(limit=5)
+    >>> codes
+    ['4CD7', '4CCW', '4CD8', '4CCX', '4CCY']
 
 
 
