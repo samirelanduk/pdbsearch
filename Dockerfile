@@ -1,7 +1,8 @@
-FROM sphinxdoc/sphinx
+FROM sphinxdoc/sphinx as builder
 
+WORKDIR /docs
 COPY ./ ./
-RUN rm -r docs/build
+RUN rm -rf docs/build
 
 RUN pip install sphinx_rtd_theme
 RUN pip install .
@@ -9,4 +10,4 @@ RUN pip install .
 RUN cd docs && make html
 
 FROM nginx:alpine
-ADD docs/build/html /usr/share/nginx/html
+COPY --from=builder /docs/docs/build/html /usr/share/nginx/html

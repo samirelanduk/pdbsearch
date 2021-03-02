@@ -10,7 +10,7 @@ Returning all PDB Codes
 You can get all PDB codes without any particular search expression like so:
 
     >>> import pdbsearch
-    >>> codes = pdbsearch(limit=None)
+    >>> codes = pdbsearch.search(limit=None)
     >>> len(codes)
     174994
 
