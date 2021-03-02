@@ -3,19 +3,14 @@ import json
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v1/query?json="
 
-def codes():
-    query = {
-        "query": {"type": "terminal", "service": "text"},
-        "request_options": {"return_all_hits": True},
-        "return_type": "entry"
-    }
-    url = "https://search.rcsb.org/rcsbsearch/v1/query?json="
-    return [pdb["identifier"] for pdb in requests.get(
-        url + json.dumps(query)
-    ).json()["result_set"]]
-
-
 def search(start=0, limit=10):
+    """Searches for PDB codes. You can choose how many to get and from what
+    starting point.
+
+    :param int start: the start index (default 0).
+    :param int limit: how many codes to return (default 10).
+    :rtype: ``list``"""
+    
     query = {}
     query["return_type"] = "entry"
     query["query"] = {"type": "terminal", "service": "text"}
