@@ -15,12 +15,12 @@ def codes():
     ).json()["result_set"]]
 
 
-def search(limit=10):
+def search(start=0, limit=10):
     query = {}
     query["return_type"] = "entry"
     query["query"] = {"type": "terminal", "service": "text"}
     if limit:
-        query["request_options"] = {"pager": {"start": 0, "rows": limit}}
+        query["request_options"] = {"pager": {"start": start, "rows": limit}}
     else:
         query["request_options"] = {"return_all_hits": True}
     response = requests.get(SEARCH_URL + json.dumps(query))

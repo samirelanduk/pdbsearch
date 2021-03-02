@@ -16,6 +16,16 @@ class Tests(TestCase):
         self.assertEqual(len(codes), 2)
     
 
+    def test_pagination_starting(self):
+        codes0 = pdbsearch.search(limit=10)
+        codes10 = pdbsearch.search(start=10, limit=10)
+        self.assertEqual(len(set(codes0) & set(codes10)), 0)
+        codes5 = pdbsearch.search(start=5, limit=10)
+        self.assertEqual(len(set(codes5) & set(codes0)), 5)
+        self.assertEqual(len(set(codes5) & set(codes10)), 5)
+        self.assertEqual(codes5[0], codes0[5])
+    
+
     def test_all_codes(self):
         codes = pdbsearch.search(limit=None)
         self.assertGreater(len(codes), 150_000)
