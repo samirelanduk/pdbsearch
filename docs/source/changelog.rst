@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 0.2.0
+~~~~~~~~~~~~~
+
+`25 April 2021`
+
+* Added ability to sort results.
+* Created shorthand system for common sort criteria.
+
+
 Release 0.1.0
 ~~~~~~~~~~~~~
 
