@@ -1,6 +1,24 @@
 pdbsearch
 =========
 
+|travis| |coveralls| |pypi| |version| |commit|
+
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/pdbsearch.svg?branch=master
+  :target: https://travis-ci.org/samirelanduk/pdbsearch/
+
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/pdbsearch/badge.svg?branch=master
+  :target: https://coveralls.io/github/samirelanduk/pdbsearch/
+
+.. |pypi| image:: https://img.shields.io/pypi/pyversions/pdbsearch.svg
+  :target: https://pypi.org/project/pdbsearch/
+
+.. |version| image:: https://img.shields.io/pypi/v/pdbsearch.svg
+  :target: https://pypi.org/project/pdbsearch/
+
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/pdbsearch/master.svg
+  :target: https://github.com/samirelanduk/pdbsearch/tree/master/
+
+
 pdbsearch is a Python library for searching for PDB structures using the
 RCSB web services.
 
@@ -58,7 +76,6 @@ You can opt to only run unit tests or integration tests:
 ``$ python -m unittest discover tests.integration``
 
 
-
 Overview
 --------
 
@@ -82,10 +99,39 @@ object over the network. Generally it is better to paginate the results:
     >>> second_ten_codes = pdbsearch.search(start=10, limit=10)
     >>> third_ten_codes = pdbsearch.search(start=20, limit=10)
 
+You can sort the results by any of the terms at
+`<https://search.rcsb.org/search-attributes.html>`_:
+
+    >>> most_recent_codes = pdbsearch.search(sort="rcsb_accession_info.deposit_date")
+    >>> earliest_codes = pdbsearch.search(sort="-rcsb_accession_info.deposit_date")
+
+As these are somewhat cumbersome, some of them have a shorthand:
+
+    >>> pdbsearch.search(limit=5, sort="code")
+    ['9XIM', '9XIA', '9WGA', '9RUB', '9RSA']
+    >>> pdbsearch.search(limit=5, sort="-resolution")
+    ['3NIR', '5D8V', '1EJG', '3P4J', '5NW3']
+
+You can sort by multiple criteria:
+
+    >>> pdbsearch.search(limit=5, sort=["-atoms", "released"])
+    ['1ANP', '6UOU', '6UOW', '1Q7O', '6QTF']
+
+
+
 
 
 Changelog
 ---------
+
+Release 0.2.0
+~~~~~~~~~~~~~
+
+`25 April 2021`
+
+* Added ability to sort results.
+* Created shorthand system for common sort criteria.
+
 
 Release 0.1.0
 ~~~~~~~~~~~~~
