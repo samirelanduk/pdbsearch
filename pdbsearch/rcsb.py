@@ -23,11 +23,23 @@ def search(start=0, limit=10, sort=None, **kwargs):
     apply_sort(query, sort)
 
     for kwarg, value in kwargs.items():
-        if kwarg.startswith("ligand_name"):
+        if kwarg == "ligand_name":
             operator = "exact_match"
             if isinstance(value, list): operator = "in"
             query["query"]["parameters"] = {
                 "attribute": "rcsb_nonpolymer_instance_feature_summary.comp_id",
+                "operator": operator,
+                "value": value
+            }
+        if kwarg.startswith("ligand_distance"):
+            operator = "equals"
+            if kwarg.endswith("__lt"): operator = "less"
+            if kwarg.endswith("__lte"): operator = "less_or_equal"
+            if kwarg.endswith("__gt"): operator = "greater"
+            if kwarg.endswith("__gte"): operator = "greater_or_equal"
+            if kwarg.endswith("__within"): operator = "range"
+            query["query"]["parameters"] = {
+                "attribute": "rcsb_ligand_neighbors.distance",
                 "operator": operator,
                 "value": value
             }

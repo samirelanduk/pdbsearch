@@ -51,16 +51,54 @@ class Tests(TestCase):
     
 
     def test_filter_pdbs_by_ligand_name(self):
+        # Match
         codes = pdbsearch.search(ligand_name="ZN", sort="-deposited")
         self.assertEqual(codes, [
             "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS", "7TLN"
         ])
-    
 
-    def test_filter_pdbs_by_ligand_name_list(self):
+        # List
         codes = pdbsearch.search(ligand_name=["FE", "ZN"], sort="-deposited")
         self.assertEqual(codes, [
             "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS"
+        ])
+    
+
+    def test_filter_pdbs_by_ligand_distance(self):
+        # Match
+        codes = pdbsearch.search(ligand_distance=5, sort="-deposited")
+        self.assertEqual(codes, [
+            "1C1P", "1EM6", "3DN0", "3G0T", "3A0H", "2WSE", "3KZI", "4V6M", "3SEQ", "4IXQ"
+        ])
+
+        # Less than
+        codes = pdbsearch.search(ligand_distance__lt=5, sort="-deposited")
+        self.assertEqual(codes, [
+            "1MBN", "2DHB", "3LDH", "2CHA", "2CNA", "1HIP", "1GPD", "1EST", "1CYC", "155C"
+        ])
+
+        # Less than equal
+        codes = pdbsearch.search(ligand_distance__lte=5, sort="-deposited")
+        self.assertEqual(codes, [
+            "1MBN", "2DHB", "3LDH", "2CHA", "2CNA", "1HIP", "1GPD", "1EST", "1CYC", "155C"
+        ])
+
+        # More than
+        codes = pdbsearch.search(ligand_distance__gt=5, sort="-deposited")
+        self.assertEqual(codes, [
+            "6IY5", "6T52", "6T54", "6T53", "6T58"
+        ])
+
+        # More than equal
+        codes = pdbsearch.search(ligand_distance__gte=5, sort="-deposited")
+        self.assertEqual(codes, [
+            "1C1P", "1EM6", "3DN0", "3G0T", "3A0H", "2WSE", "3KZI", "4V6M", "3SEQ", "4IXQ"
+        ])
+
+        # Range
+        codes = pdbsearch.search(ligand_distance__within=[4, 5], sort="-deposited")
+        self.assertEqual(codes, [
+            "1GPD", "1EST", "2YHX", "1C4S", "1MBS", "1HDS", "5LDH", "1BP2", "1FC2", "1HBS"
         ])
     
 
