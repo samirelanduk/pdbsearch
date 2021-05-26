@@ -29,11 +29,11 @@ class Tests(TestCase):
     def test_sorting_shorthand(self):
         codes = pdbsearch.search(sort="-deposited")
         self.assertEqual(codes, [
-            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "4LYZ", "3LYZ", "1LYZ", "2LYZ", "5LYZ"
+            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "3LYZ", "4LYZ", "6LYZ", "5LYZ", "2LYZ"
         ])
         codes = pdbsearch.search(sort="-released")
         self.assertEqual(codes, [
-            "1REI", "1MBN", "1SRX", "1EST", "1FDH", "155C", "2PGK", "2SBT", "1CYC", "3CNA"
+            "1SRX", "1REI", "1MBN", "1EST", "1FDH", "155C", "2PGK", "2SBT", "1CYC", "3CNA"
         ])
         codes = pdbsearch.search(sort=["code", "released"])
         self.assertEqual(codes[0][0], "9")
@@ -42,11 +42,11 @@ class Tests(TestCase):
     def test_sorting_full_property(self):
         codes = pdbsearch.search(sort="-rcsb_accession_info.deposit_date")
         self.assertEqual(codes, [
-            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "4LYZ", "3LYZ", "1LYZ", "2LYZ", "5LYZ"
+            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "3LYZ", "4LYZ", "6LYZ", "5LYZ", "2LYZ"
         ])
         codes = pdbsearch.search(sort="-rcsb_accession_info.initial_release_date")
         self.assertEqual(codes, [
-            "1REI", "1MBN", "1SRX", "1EST", "1FDH", "155C", "2PGK", "2SBT", "1CYC", "3CNA"
+            "1SRX", "1REI", "1MBN", "1EST", "1FDH", "155C", "2PGK", "2SBT", "1CYC", "3CNA"
         ])
     
 
