@@ -3,7 +3,7 @@ import json
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v1/query?json="
 
-def search(start=0, limit=10, sort=None):
+def search(start=0, limit=10, sort=None, ligand_name=None):
     """Searches for PDB codes. You can choose how many to get and from what
     starting point.
 
@@ -21,6 +21,15 @@ def search(start=0, limit=10, sort=None):
     query["query"] = {"type": "terminal", "service": "text"}
     apply_pagination(query, start, limit)
     apply_sort(query, sort)
+
+    if ligand_name:
+        query["query"]["parameters"] = {
+          "attribute": "rcsb_nonpolymer_instance_feature_summary.comp_id",
+          "operator": "exact_match",
+          "value": ligand_name
+        }
+
+
     result = send_request(query)
     if result: return [r["identifier"] for r in result["result_set"]]
 

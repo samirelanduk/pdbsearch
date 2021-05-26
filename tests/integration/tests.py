@@ -50,6 +50,13 @@ class Tests(TestCase):
         ])
     
 
+    def test_filter_pdbs_by_ligand_name(self):
+        codes = pdbsearch.search(ligand_name="ZN", sort="-deposited")
+        self.assertEqual(codes, [
+            "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS", "7TLN"
+        ])
+    
+
     def test_all_codes(self):
         codes = pdbsearch.search(limit=None)
         self.assertGreater(len(codes), 150_000)
