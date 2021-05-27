@@ -23,26 +23,40 @@ def search(start=0, limit=10, sort=None, **kwargs):
     apply_sort(query, sort)
 
     for kwarg, value in kwargs.items():
-        if kwarg == "ligand_name":
-            operator = "exact_match"
-            if isinstance(value, list): operator = "in"
-            query["query"]["parameters"] = {
-                "attribute": "rcsb_nonpolymer_instance_feature_summary.comp_id",
-                "operator": operator,
-                "value": value
-            }
-        if kwarg.startswith("ligand_distance"):
+
+        suffixes = {
+            "lte": "less_or_equal",
+            "lt": "less",
+            "gte": "greater_or_equal",
+            "gt": "greater",
+            "within": "range",
+            "in": "in",
+        }
+        shorthand = {
+            "ligand_name": "rcsb_nonpolymer_instance_feature_summary.comp_id",
+            "ligand_distance": "rcsb_ligand_neighbors.distance"
+        }
+
+        attribute = kwarg
+        for suffix in suffixes:
+            attribute = attribute.replace(f"__{suffix}", "")
+        attribute = attribute.replace("__", ".")
+        if attribute in shorthand: attribute = shorthand[attribute]
+
+        operator = "exact_match"
+        if isinstance(value, int) or isinstance(value, float):
             operator = "equals"
-            if kwarg.endswith("__lt"): operator = "less"
-            if kwarg.endswith("__lte"): operator = "less_or_equal"
-            if kwarg.endswith("__gt"): operator = "greater"
-            if kwarg.endswith("__gte"): operator = "greater_or_equal"
-            if kwarg.endswith("__within"): operator = "range"
-            query["query"]["parameters"] = {
-                "attribute": "rcsb_ligand_neighbors.distance",
-                "operator": operator,
-                "value": value
-            }
+        for suffix in suffixes:
+            if kwarg.endswith(f"__{suffix}"):
+                operator = suffixes[suffix]
+
+        query["query"]["parameters"] = {
+            "attribute": attribute,
+            "operator": operator,
+            "value": value
+        }
+
+
     result = send_request(query)
     if result: return [r["identifier"] for r in result["result_set"]]
 

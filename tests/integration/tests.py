@@ -58,7 +58,19 @@ class Tests(TestCase):
         ])
 
         # List
-        codes = pdbsearch.search(ligand_name=["FE", "ZN"], sort="-deposited")
+        codes = pdbsearch.search(ligand_name__in=["FE", "ZN"], sort="-deposited")
+        self.assertEqual(codes, [
+            "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS"
+        ])
+
+        # Full
+        codes = pdbsearch.search(rcsb_nonpolymer_instance_feature_summary__comp_id="ZN", sort="-deposited")
+        self.assertEqual(codes, [
+            "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS", "7TLN"
+        ])
+
+        # Full List
+        codes = pdbsearch.search(rcsb_nonpolymer_instance_feature_summary__comp_id__in=["FE", "ZN"], sort="-deposited")
         self.assertEqual(codes, [
             "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS"
         ])
@@ -99,6 +111,12 @@ class Tests(TestCase):
         codes = pdbsearch.search(ligand_distance__within=[4, 5], sort="-deposited")
         self.assertEqual(codes, [
             "1GPD", "1EST", "2YHX", "1C4S", "1MBS", "1HDS", "5LDH", "1BP2", "1FC2", "1HBS"
+        ])
+
+        # Full
+        codes = pdbsearch.search(rcsb_ligand_neighbors__distance=5, sort="-deposited")
+        self.assertEqual(codes, [
+            "1C1P", "1EM6", "3DN0", "3G0T", "3A0H", "2WSE", "3KZI", "4V6M", "3SEQ", "4IXQ"
         ])
     
 
