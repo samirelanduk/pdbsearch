@@ -18,9 +18,12 @@ def search(start=0, limit=10, sort=None, **kwargs):
     
     query = {}
     query["return_type"] = "entry"
-    query["query"] = {"type": "terminal", "service": "text"}
     apply_pagination(query, start, limit)
     apply_sort(query, sort)
+
+    query["query"] = {
+        "type": "group", "logical_operator": "and", "nodes": []
+    }
 
     for kwarg, value in kwargs.items():
 
@@ -50,10 +53,20 @@ def search(start=0, limit=10, sort=None, **kwargs):
             if kwarg.endswith(f"__{suffix}"):
                 operator = suffixes[suffix]
 
-        query["query"]["parameters"] = {
-            "attribute": attribute,
-            "operator": operator,
-            "value": value
+        query["query"]["nodes"].append({
+            "type": "terminal",
+            "service": "text",
+            "parameters": {
+                "attribute": attribute,
+                "operator": operator,
+                "value": value
+            }
+        })
+
+    if not query["query"]["nodes"]:
+        query["query"] = {
+            "type": "terminal",
+            "service": "text"
         }
 
 

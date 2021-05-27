@@ -120,6 +120,13 @@ class Tests(TestCase):
         ])
     
 
+    def test_multiple_criteria_searching(self):
+        codes = pdbsearch.search(ligand_name="ZN", ligand_distance__within=[2.7, 2.9], sort="-deposited")
+        self.assertEqual(codes, [
+            "4TLN", "5TLN", "4CPA", "5ADH", "6ADH", "1TLP", "8ATC", "3AT1", "8AT1", "7AT1"
+        ])
+    
+
     def test_all_codes(self):
         codes = pdbsearch.search(limit=None)
         self.assertGreater(len(codes), 150_000)
