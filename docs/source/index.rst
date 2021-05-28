@@ -8,9 +8,9 @@ Example
 -------
 
     >>> import pdbsearch
-    >>> codes = pdbsearch.search(limit=5)
+    >>> codes = pdbsearch.search(limit=5, ligand_name="CU")
     >>> codes
-    ['4CD7', '4CCW', '4CD8', '4CCX', '4CCY']
+    ['3HW7', '2WKO', '2WOF', '2WOH', '2WO0']
 
 Table of Contents
 -----------------

@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 0.3.0
+~~~~~~~~~~~~~
+
+`29 May 2021`
+
+* Added search criteria.
+* Added AND chaining for search criteria.
+
+
 Release 0.2.0
 ~~~~~~~~~~~~~
 
