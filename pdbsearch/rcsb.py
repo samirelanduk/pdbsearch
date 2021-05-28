@@ -3,6 +3,25 @@ import json
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v1/query?json="
 
+SUFFIXES = {
+    "lte": "less_or_equal",
+    "lt": "less",
+    "gte": "greater_or_equal",
+    "gt": "greater",
+    "within": "range",
+    "in": "in",
+}
+
+QUERY_SHORTHAND  = {
+    "ligand_name": "rcsb_nonpolymer_instance_feature_summary.comp_id",
+    "ligand_distance": "rcsb_ligand_neighbors.distance",
+    "released": "rcsb_accession_info.initial_release_date",
+    "deposited": "rcsb_accession_info.deposit_date",
+    "code": "rcsb_entry_container_identifiers.entry_id",
+    "atoms": "rcsb_entry_info.deposited_atom_count",
+    "resolution": "rcsb_entry_info.resolution_combined"
+}
+
 def search(start=0, limit=10, sort=None, **kwargs):
     """Searches for PDB codes. You can choose how many to get and from what
     starting point.
@@ -20,56 +39,7 @@ def search(start=0, limit=10, sort=None, **kwargs):
     query["return_type"] = "entry"
     apply_pagination(query, start, limit)
     apply_sort(query, sort)
-
-    query["query"] = {
-        "type": "group", "logical_operator": "and", "nodes": []
-    }
-
-    for kwarg, value in kwargs.items():
-
-        suffixes = {
-            "lte": "less_or_equal",
-            "lt": "less",
-            "gte": "greater_or_equal",
-            "gt": "greater",
-            "within": "range",
-            "in": "in",
-        }
-        shorthand = {
-            "ligand_name": "rcsb_nonpolymer_instance_feature_summary.comp_id",
-            "ligand_distance": "rcsb_ligand_neighbors.distance"
-        }
-
-        attribute = kwarg
-        for suffix in suffixes:
-            attribute = attribute.replace(f"__{suffix}", "")
-        attribute = attribute.replace("__", ".")
-        if attribute in shorthand: attribute = shorthand[attribute]
-
-        operator = "exact_match"
-        if isinstance(value, int) or isinstance(value, float):
-            operator = "equals"
-        for suffix in suffixes:
-            if kwarg.endswith(f"__{suffix}"):
-                operator = suffixes[suffix]
-
-        query["query"]["nodes"].append({
-            "type": "terminal",
-            "service": "text",
-            "parameters": {
-                "attribute": attribute,
-                "operator": operator,
-                "value": value
-            }
-        })
-
-    if not query["query"]["nodes"]:
-        query["query"] = {
-            "type": "terminal",
-            "service": "text"
-        }
-
-
+    apply_query(query, kwargs)
     result = send_request(query)
     if result: return [r["identifier"] for r in result["result_set"]]
 
@@ -112,18 +82,75 @@ def sort_term_to_sort_dict(term):
     :param str term: the sort term.
     :rtype: ``dict``"""
 
-    shorthand = {
-        "released": "rcsb_accession_info.initial_release_date",
-        "deposited": "rcsb_accession_info.deposit_date",
-        "code": "rcsb_entry_container_identifiers.entry_id",
-        "atoms": "rcsb_entry_info.deposited_atom_count",
-        "resolution": "rcsb_entry_info.resolution_combined"
-    }
     direction = "desc"
     if term[0] == "-":
         direction = "asc"
         term = term[1:]
-    return {"sort_by": shorthand.get(term, term), "direction": direction}
+    return {"sort_by": QUERY_SHORTHAND.get(term, term), "direction": direction}
+
+
+def apply_query(query, kwargs):
+    """Adds the query component to the overall query object. It uses whatever
+    leftover keyword arguments are passed to the search function and uses these
+    in a chain of AND queries.
+
+    :param dict query: the RCSB query object.    
+    :param dict kwargs: the keyword arguments passed to the search function."""
+
+    query["query"] = {"type": "group", "logical_operator": "and", "nodes": []}
+    for kwarg, value in kwargs.items():
+        parameters = get_query_parameters(kwarg, value)
+        if parameters:
+            query["query"]["nodes"].append({
+                "type": "terminal", "service": "text", "parameters": parameters
+            })
+    if not query["query"]["nodes"]:
+        query["query"] = {"type": "terminal", "service": "text"}
+
+
+def get_query_parameters(property, value):
+    """Takes a key-value pair passed to the search function and turns it into a
+    parameters dictionary representing that search criterion.
+
+    :param str property: the keyword name.
+    :param value: the search value.
+    :rtype: ``dict``"""
+
+    attribute = get_query_attribute(property)
+    operator = get_query_operator(property, value)
+    return {"attribute": attribute, "operator": operator, "value": value}
+
+
+def get_query_attribute(kwarg):
+    """Takes a proposed query property and modifies it as needed based on
+    suffixes or shorthand.
+
+    :param str kwarg: the keyword argument passed to the search function.
+    :rtype: ``str``"""
+    
+    attribute = kwarg
+    for suffix in SUFFIXES:
+        attribute = attribute.replace(f"__{suffix}", "")
+    attribute = attribute.replace("__", ".")
+    if attribute in QUERY_SHORTHAND: attribute = QUERY_SHORTHAND[attribute]
+    return attribute
+
+
+def get_query_operator(kwarg, value):
+    """Takes a key-value pair passed to the search function and works out what
+    operator should be used (equals, less than, within etc.).
+
+    :param str kwarg: the keyword argument passed to the search function.
+    :param value: the search value.
+    :rtype: ``str``"""
+
+    operator = "exact_match"
+    if isinstance(value, int) or isinstance(value, float):
+        operator = "equals"
+    for suffix in SUFFIXES:
+        if kwarg.endswith(f"__{suffix}"):
+            operator = SUFFIXES[suffix]
+    return operator
 
 
 def send_request(query):
@@ -137,4 +164,3 @@ def send_request(query):
     response = requests.get(SEARCH_URL + json.dumps(query))
     if response.status_code == 200:
         return response.json()
-
