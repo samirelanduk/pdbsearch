@@ -5,7 +5,7 @@ with open("README.rst") as f:
 
 setup(
  name="pdbsearch",
- version="0.3.0",
+ version="0.4.0",
  description="A library for searching for PDB structures using the official APIs.",
  long_description=long_description,
  long_description_content_type="text/x-rst",
