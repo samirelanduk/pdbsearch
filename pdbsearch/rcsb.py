@@ -1,7 +1,7 @@
 import requests
 import json
 
-SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v1/query?json="
+SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query?json="
 
 SUFFIXES = {
     "lte": "less_or_equal",

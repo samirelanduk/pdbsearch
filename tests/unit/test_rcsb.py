@@ -195,7 +195,7 @@ class RequestSendingTests(TestCase):
     def test_successful_request(self, mock_get):
         mock_get.return_value.status_code = 200
         response = send_request('{"key": "value"}')
-        mock_get.assert_called_with('https://search.rcsb.org/rcsbsearch/v1/query?json="{\\"key\\": \\"value\\"}"')
+        mock_get.assert_called_with('https://search.rcsb.org/rcsbsearch/v2/query?json="{\\"key\\": \\"value\\"}"')
         self.assertIs(response, mock_get.return_value.json.return_value)
     
 
@@ -203,5 +203,5 @@ class RequestSendingTests(TestCase):
     def test_unsuccessful_request(self, mock_get):
         mock_get.return_value.status_code = 500
         response = send_request('{"key": "value"}')
-        mock_get.assert_called_with('https://search.rcsb.org/rcsbsearch/v1/query?json="{\\"key\\": \\"value\\"}"')
+        mock_get.assert_called_with('https://search.rcsb.org/rcsbsearch/v2/query?json="{\\"key\\": \\"value\\"}"')
         self.assertIsNone(response)
