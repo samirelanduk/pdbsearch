@@ -29,11 +29,11 @@ class Tests(TestCase):
     def test_sorting_shorthand(self):
         codes = pdbsearch.search(sort="-deposited")
         self.assertEqual(codes, [
-            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "3LYZ", "4LYZ", "6LYZ", "5LYZ", "2LYZ"
+            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "1LYZ", "2LYZ", "3LYZ", "4LYZ", "5LYZ"
         ])
         codes = pdbsearch.search(sort="-released")
         self.assertEqual(codes, [
-            "1SRX", "1REI", "1MBN", "1EST", "1FDH", "155C", "2PGK", "2SBT", "1CYC", "3CNA"
+            "1MBN", "1REI", "1SRX", "1EST", "1FDH", "155C", "2PGK", "1CYC", "2SBT", "3CNA"
         ])
         codes = pdbsearch.search(sort=["code", "released"])
         self.assertEqual(codes[0][0], "9")
@@ -42,11 +42,11 @@ class Tests(TestCase):
     def test_sorting_full_property(self):
         codes = pdbsearch.search(sort="-rcsb_accession_info.deposit_date")
         self.assertEqual(codes, [
-            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "3LYZ", "4LYZ", "6LYZ", "5LYZ", "2LYZ"
+            "1SBT", "1MBN", "2DHB", "3LDH", "2CHA", "1LYZ", "2LYZ", "3LYZ", "4LYZ", "5LYZ"
         ])
         codes = pdbsearch.search(sort="-rcsb_accession_info.initial_release_date")
         self.assertEqual(codes, [
-            "1SRX", "1REI", "1MBN", "1EST", "1FDH", "155C", "2PGK", "2SBT", "1CYC", "3CNA"
+            "1MBN", "1REI", "1SRX", "1EST", "1FDH", "155C", "2PGK", "1CYC", "2SBT", "3CNA"
         ])
     
 
@@ -54,25 +54,25 @@ class Tests(TestCase):
         # Match
         codes = pdbsearch.search(ligand_name="ZN", sort="-deposited")
         self.assertEqual(codes, [
-            "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS", "7TLN"
+            "2SOD", "1PPT", "4TLN", "5TLN", "2ATC", "3CPA", "4CPA", "5CPA", "2INS", "7TLN"
         ])
 
         # List
         codes = pdbsearch.search(ligand_name__in=["FE", "ZN"], sort="-deposited")
         self.assertEqual(codes, [
-            "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS"
+            "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "2ATC", "3CPA", "4CPA", "5CPA", "2INS"
         ])
 
         # Full
         codes = pdbsearch.search(rcsb_nonpolymer_instance_feature_summary__comp_id="ZN", sort="-deposited")
         self.assertEqual(codes, [
-            "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS", "7TLN"
+            "2SOD", "1PPT", "4TLN", "5TLN", "2ATC", "3CPA", "4CPA", "5CPA", "2INS", "7TLN"
         ])
 
         # Full List
         codes = pdbsearch.search(rcsb_nonpolymer_instance_feature_summary__comp_id__in=["FE", "ZN"], sort="-deposited")
         self.assertEqual(codes, [
-            "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "3CPA", "4CPA", "2ATC", "5CPA", "2INS"
+            "1HRB", "2SOD", "1PPT", "4TLN", "5TLN", "2ATC", "3CPA", "4CPA", "5CPA", "2INS"
         ])
     
 
@@ -86,19 +86,19 @@ class Tests(TestCase):
         # Less than
         codes = pdbsearch.search(ligand_distance__lt=5, sort="-deposited")
         self.assertEqual(codes, [
-            "1MBN", "2DHB", "3LDH", "2CHA", "2CNA", "1HIP", "1GPD", "1EST", "1CYC", "155C"
+            "1MBN", "2DHB", "3LDH", "2CHA", "1HIP", "2CNA", "1GPD", "1EST", "155C", "1CYC"
         ])
 
         # Less than equal
         codes = pdbsearch.search(ligand_distance__lte=5, sort="-deposited")
         self.assertEqual(codes, [
-            "1MBN", "2DHB", "3LDH", "2CHA", "2CNA", "1HIP", "1GPD", "1EST", "1CYC", "155C"
+            "1MBN", "2DHB", "3LDH", "2CHA", "1HIP", "2CNA", "1GPD", "1EST", "155C", "1CYC"
         ])
 
         # More than
         codes = pdbsearch.search(ligand_distance__gt=5, sort="-deposited")
         self.assertEqual(codes, [
-            "6IY5", "6T52", "6T54", "6T53", "6T58"
+            "6T52", "6T53", "6T54", "6T58"
         ])
 
         # More than equal
@@ -123,7 +123,7 @@ class Tests(TestCase):
     def test_multiple_criteria_searching(self):
         codes = pdbsearch.search(ligand_name="ZN", ligand_distance__within=[2.7, 2.9], sort="-deposited")
         self.assertEqual(codes, [
-            "4TLN", "5TLN", "4CPA", "5ADH", "6ADH", "1TLP", "8ATC", "3AT1", "8AT1", "7AT1"
+            "4TLN", "5TLN", "4CPA", "5ADH", "6ADH", "1TLP", "8ATC", "1AT1", "2AT1", "3AT1"
         ])
     
 
