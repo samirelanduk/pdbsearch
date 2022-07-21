@@ -54,7 +54,7 @@ def apply_pagination(query, start, limit):
     everything)"""
 
     if limit:
-        query["request_options"] = {"pager": {"start": start, "rows": limit}}
+        query["request_options"] = {"paginate": {"start": start, "rows": limit}}
     else:
         query["request_options"] = {"return_all_hits": True}
 

@@ -47,7 +47,7 @@ class PaginationApplyingTests(TestCase):
     def test_can_get_limit_codes(self):
         query = {}
         apply_pagination(query, 10, 45)
-        self.assertEqual(query, {"request_options": {"pager": {"start": 10, "rows": 45}}})
+        self.assertEqual(query, {"request_options": {"paginate": {"start": 10, "rows": 45}}})
 
 
 class SortApplyingTests(TestCase):
