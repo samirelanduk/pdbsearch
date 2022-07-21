@@ -50,6 +50,7 @@ class PaginationApplyingTests(TestCase):
         self.assertEqual(query, {"request_options": {"paginate": {"start": 10, "rows": 45}}})
 
 
+
 class SortApplyingTests(TestCase):
 
     def test_can_do_nothing(self):
@@ -146,6 +147,19 @@ class QueryParameterTests(TestCase):
         self.assertEqual(parameters, {
             "attribute": mock_att.return_value, "operator": mock_op.return_value,
             "value": "value"    
+        })
+    
+
+    @patch("pdbsearch.rcsb.get_query_attribute")
+    @patch("pdbsearch.rcsb.get_query_operator")
+    def test_can_get_query_parameters_for_range(self, mock_op, mock_att):
+        mock_op.return_value = "range"
+        parameters = get_query_parameters("property", [1, 2])
+        mock_att.assert_called_with("property")
+        mock_op.assert_called_with("property", [1, 2])
+        self.assertEqual(parameters, {
+            "attribute": mock_att.return_value, "operator": "range",
+            "value": {"from": 1, "to": 2}
         })
 
 

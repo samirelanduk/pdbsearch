@@ -118,6 +118,7 @@ def get_query_parameters(property, value):
 
     attribute = get_query_attribute(property)
     operator = get_query_operator(property, value)
+    if operator == "range": value = {"from": value[0], "to": value[1]}
     return {"attribute": attribute, "operator": operator, "value": value}
 
 
