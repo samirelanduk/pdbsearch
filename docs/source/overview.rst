@@ -22,7 +22,7 @@ object over the network. Generally it is better to paginate the results:
     >>> third_ten_codes = pdbsearch.search(start=20, limit=10)
 
 You can sort the results by any of the terms at
-`<https://search.rcsb.org/search-attributes.html>`_:
+`<https://search.rcsb.org/structure-search-attributes.html>`_:
 
     >>> most_recent_codes = pdbsearch.search(sort="rcsb_accession_info.deposit_date")
     >>> earliest_codes = pdbsearch.search(sort="-rcsb_accession_info.deposit_date")
