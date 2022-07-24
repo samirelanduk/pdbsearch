@@ -18,7 +18,6 @@ pdbsearch
 .. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/pdbsearch/master.svg
   :target: https://github.com/samirelanduk/pdbsearch/tree/master/
 
-
 pdbsearch is a Python library for searching for PDB structures using the
 RCSB web services.
 
@@ -29,7 +28,6 @@ Example
     >>> codes = pdbsearch.search(limit=5, ligand_name="CU")
     >>> codes
     ['3HW7', '2WKO', '2WOF', '2WOH', '2WO0']
-
 
 
 Installing
@@ -100,7 +98,7 @@ object over the network. Generally it is better to paginate the results:
     >>> third_ten_codes = pdbsearch.search(start=20, limit=10)
 
 You can sort the results by any of the terms at
-`<https://search.rcsb.org/search-attributes.html>`_:
+`<https://search.rcsb.org/structure-search-attributes.html>`_:
 
     >>> most_recent_codes = pdbsearch.search(sort="rcsb_accession_info.deposit_date")
     >>> earliest_codes = pdbsearch.search(sort="-rcsb_accession_info.deposit_date")
@@ -147,6 +145,14 @@ If you use more than one term, they will be combined with AND operators:
 
 Changelog
 ---------
+
+Release 0.4.0
+~~~~~~~~~~~~~
+
+`24 Jul 2022`
+
+* Updated library for v2 of the RCSB search API.
+
 
 Release 0.3.0
 ~~~~~~~~~~~~~

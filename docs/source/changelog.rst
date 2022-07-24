@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 0.4.0
+~~~~~~~~~~~~~
+
+`24 Jul 2022`
+
+* Updated library for v2 of the RCSB search API.
+
+
 Release 0.3.0
 ~~~~~~~~~~~~~
 
