@@ -185,3 +185,37 @@ class GetTextParametersTests(TestCase):
             "negation": True,
             "operator": "exists",
         })
+    
+
+    def test_inclusive_range_operator(self):
+        self.assertEqual(get_text_parameters("key1__attribute__between", [1, 10]), {
+            "attribute": "key1.attribute",
+            "operator": "range",
+            "value": {"from": 1, "to": 10, "include_lower": True, "include_upper": True}
+        })
+    
+
+    def test_not_inclusive_range_operator(self):
+        self.assertEqual(get_text_parameters("key1__attribute__not__between", [1, 10]), {
+            "attribute": "key1.attribute",
+            "negation": True,
+            "operator": "range",
+            "value": {"from": 1, "to": 10, "include_lower": True, "include_upper": True}
+        })
+    
+
+    def test_exclusive_range_operator(self):
+        self.assertEqual(get_text_parameters("key1__attribute__between", (1, 10)), {
+            "attribute": "key1.attribute",
+            "operator": "range",
+            "value": {"from": 1, "to": 10, "include_lower": False, "include_upper": False}
+        })
+    
+
+    def test_not_exclusive_range_operator(self):
+        self.assertEqual(get_text_parameters("key1__attribute__not__between", (1, 10)), {
+            "attribute": "key1.attribute",
+            "negation": True,
+            "operator": "range",
+            "value": {"from": 1, "to": 10, "include_lower": False, "include_upper": False}
+        })
