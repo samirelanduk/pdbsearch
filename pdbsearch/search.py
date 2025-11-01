@@ -37,6 +37,10 @@ def search(return_type, ids_only=False, **kwargs):
             operator = "contains_phrase"
         else:
             operator = "exact_match"
+        negation = False
+        if key.endswith("__not"):
+            key = key.replace("__not", "")
+            negation = True
         key = key.replace("__", ".")
         query["query"] = {
             "type": "terminal",
@@ -49,6 +53,10 @@ def search(return_type, ids_only=False, **kwargs):
         }
         if operator == "exists":
             del query["query"]["parameters"]["value"]
+            if value == False:
+                query["query"]["parameters"]["negation"] = True
+        if negation:
+            query["query"]["parameters"]["negation"] = True
     response = requests.post(SEARCH_URL, json=query)
     result = response.json()
     if ids_only:
