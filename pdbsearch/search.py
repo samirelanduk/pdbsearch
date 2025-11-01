@@ -2,7 +2,7 @@ import requests
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type, ids_only=False, text=None, **kwargs):
+def search(return_type, ids_only=False, return_all=False, text=None, **kwargs):
     query = {
         "return_type": return_type,
     }
@@ -76,7 +76,25 @@ def search(return_type, ids_only=False, text=None, **kwargs):
             "logical_operator": "and",
             "nodes": nodes
         }
-        
+
+    if request_options := create_request_options(return_all):
+        query["request_options"] = request_options
+    return send_query(query, ids_only)
+
+
+def create_request_options(return_all=False):
+    if return_all:
+        return {"return_all_hits": True}
+
+
+def send_query(query, ids_only=False):
+    """Sends a structured query object to the RCSB search API, and processes the
+    response.
+
+    :param dict query: the query object to send.
+    :param bool ids_only: whether to return only the identifiers of the results.
+    :rtype: ``list`` or ``dict``"""
+
     response = requests.post(SEARCH_URL, json=query)
     if response.status_code == 204: return None
     result = response.json()
