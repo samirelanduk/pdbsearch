@@ -1,5 +1,43 @@
 from unittest import TestCase
-from pdbsearch.query import get_text_parameters
+from unittest.mock import patch
+from pdbsearch.query import query, get_text_parameters
+
+@patch("pdbsearch.query.TerminalNode")
+class QueryTests(TestCase):
+
+    def test_empty_query(self, mock_terminal_node):
+        self.assertEqual(query(), mock_terminal_node.return_value)
+        mock_terminal_node.assert_called_once_with(service="text")
+    
+
+    def test_full_text_service_query(self, mock_terminal_node):
+        self.assertEqual(query(text="aaa+bbb"), mock_terminal_node.return_value)
+        mock_terminal_node.assert_called_once_with(service="full_text", parameters={"value": "aaa+bbb"})
+    
+
+    @patch("pdbsearch.query.get_text_parameters")
+    def test_text_service_query(self, mock_get_text_parameters, mock_terminal_node):
+        self.assertEqual(query(key1="value1"), mock_terminal_node.return_value)
+        mock_get_text_parameters.assert_called_once_with("key1", "value1")
+        mock_terminal_node.assert_called_once_with(service="text", parameters=mock_get_text_parameters.return_value)
+    
+
+    def test_cannot_use_multiple_text_service_queries(self, mock_terminal_node):
+        with self.assertRaises(ValueError) as context:
+            query(key1="value1", key2="value2")
+            self.assertIn("key1=value1", str(context.exception))
+            self.assertIn("key2=value2", str(context.exception))
+        mock_terminal_node.assert_not_called()
+    
+
+    def test_cannot_use_multiple_services(self, mock_terminal_node):
+        with self.assertRaises(ValueError) as context:
+            query(text="aaa+bbb", key1="value1")
+            self.assertIn("text=aaa+bbb", str(context.exception))
+            self.assertIn("key1=value1", str(context.exception))
+        mock_terminal_node.assert_not_called()
+
+
 
 class GetTextParametersTests(TestCase):
 
