@@ -2,7 +2,7 @@ import requests
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type, ids_only=False, return_all=False, text=None, **kwargs):
+def search(return_type, ids_only=False, return_all=False, start=None, rows=None, text=None, **kwargs):
     query = {
         "return_type": return_type,
     }
@@ -77,14 +77,19 @@ def search(return_type, ids_only=False, return_all=False, text=None, **kwargs):
             "nodes": nodes
         }
 
-    if request_options := create_request_options(return_all):
+    if request_options := create_request_options(return_all, start, rows):
         query["request_options"] = request_options
     return send_query(query, ids_only)
 
 
-def create_request_options(return_all=False):
-    if return_all:
-        return {"return_all_hits": True}
+def create_request_options(return_all=False, start=None, rows=None):
+    options = {}
+    if return_all: options["return_all_hits"] = True
+    if start is not None or rows is not None:
+        options["paginate"] = {}
+        if start is not None: options["paginate"]["start"] = start
+        if rows is not None: options["paginate"]["rows"] = rows
+    return options if options else None
 
 
 def send_query(query, ids_only=False):
