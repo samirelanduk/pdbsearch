@@ -9,3 +9,10 @@ class TerminalNode:
 
     service: str
     parameters: dict
+
+    def serialize(self):
+        """Returns a JSON-serializable representation of the node."""
+
+        node = {"type": "terminal", "service": self.service}
+        if self.parameters: node["parameters"] = self.parameters
+        return node
