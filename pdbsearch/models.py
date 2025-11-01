@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .request import send_request
+from .request import send_request, create_request_options
 
 @dataclass
 class TerminalNode:
@@ -19,12 +19,23 @@ class TerminalNode:
         return node
     
 
-    def execute(self, return_type, ids_only=False):
+    def execute(self, return_type, return_all=False, start=None, rows=None, counts_only=False, ids_only=False):
         """Executes the node and returns the result.
         
         :param str return_type: the RCSB object type to search for.
+        :param bool return_all: whether to return all hits rather than paginating.
+        :param int start: the start index for pagination.
+        :param int rows: the page size.
+        :param bool counts_only: whether to return only the results count.
         :param bool ids_only: whether to return only the result identifiers.
         :rtype: ``list`` or ``dict``"""
 
         request = {"return_type": return_type, "query": self.serialize()}
+        if request_options := create_request_options(
+            return_all=return_all,
+            start=start,
+            rows=rows,
+            counts_only=counts_only
+        ):
+            request["request_options"] = request_options
         return send_request(request, ids_only=ids_only)

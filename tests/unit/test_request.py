@@ -1,7 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch
-from pdbsearch.request import send_request, SEARCH_URL
-
+from pdbsearch.request import send_request, SEARCH_URL, create_request_options
 
 class SendRequestTests(TestCase):
 
@@ -33,3 +32,26 @@ class SendRequestTests(TestCase):
         result = send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
         self.assertIsNone(result)
+
+
+
+class CreateRequestOptionsTests(TestCase):
+
+    def test_no_options(self):
+        result = create_request_options()
+        self.assertIsNone(result)
+    
+
+    def test_return_all(self):
+        result = create_request_options(return_all=True)
+        self.assertEqual(result, {"return_all_hits": True})
+    
+
+    def test_counts_only(self):
+        result = create_request_options(counts_only=True)
+        self.assertEqual(result, {"return_counts": True})
+    
+
+    def test_start_and_rows(self):
+        result = create_request_options(start=10, rows=20)
+        self.assertEqual(result, {"paginate": {"start": 10, "rows": 20}})

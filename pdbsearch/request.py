@@ -17,3 +17,22 @@ def send_request(request, ids_only=False):
         return [r["identifier"] for r in result["result_set"]]
     else:
         return result
+
+
+def create_request_options(return_all=False, start=None, rows=None, counts_only=False):
+    """Creates a request options dictionary for the RCSB search API.
+    
+    :param bool return_all: whether to return all hits rather than paginating.
+    :param int start: the start index for pagination.
+    :param int rows: the page size.
+    :param bool counts_only: whether to return only the results count.
+    :rtype: ``dict``"""
+    
+    options = {}
+    if return_all: options["return_all_hits"] = True
+    if counts_only: options["return_counts"] = True
+    if start is not None or rows is not None:
+        options["paginate"] = {}
+        if start is not None: options["paginate"]["start"] = start
+        if rows is not None: options["paginate"]["rows"] = rows
+    return options if options else None
