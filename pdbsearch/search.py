@@ -3,10 +3,15 @@ import requests
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
 def search(return_type, ids_only=False, return_all=False, start=None, rows=None, text=None, **kwargs):
-    query = {
-        "return_type": return_type,
-    }
+    request = {"return_type": return_type}
+    if query := create_query(text, **kwargs):
+        request["query"] = query
+    if request_options := create_request_options(return_all, start, rows):
+        request["request_options"] = request_options
+    return send_request(request, ids_only)
 
+
+def create_query(text=None, **kwargs):
     nodes = []
     if text:
         nodes.append({
@@ -67,19 +72,16 @@ def search(return_type, ids_only=False, return_all=False, start=None, rows=None,
                     nodes[-1]["parameters"]["negation"] = True
             if negation:
                 nodes[-1]["parameters"]["negation"] = True
-    
     if len(nodes) == 1:
-        query["query"] = nodes[0]
+        return nodes[0]
     elif len(nodes) > 1:
-        query["query"] = {
+        return {
             "type": "group",
             "logical_operator": "and",
             "nodes": nodes
         }
-
-    if request_options := create_request_options(return_all, start, rows):
-        query["request_options"] = request_options
-    return send_query(query, ids_only)
+    else:
+        return None
 
 
 def create_request_options(return_all=False, start=None, rows=None):
@@ -92,15 +94,15 @@ def create_request_options(return_all=False, start=None, rows=None):
     return options if options else None
 
 
-def send_query(query, ids_only=False):
-    """Sends a structured query object to the RCSB search API, and processes the
-    response.
+def send_request(request, ids_only=False):
+    """Sends a structured query request object to the RCSB search API, and
+    processes the response.
 
-    :param dict query: the query object to send.
+    :param dict request: the query request object to send.
     :param bool ids_only: whether to return only the identifiers of the results.
     :rtype: ``list`` or ``dict``"""
 
-    response = requests.post(SEARCH_URL, json=query)
+    response = requests.post(SEARCH_URL, json=request)
     if response.status_code == 204: return None
     result = response.json()
     if ids_only:
