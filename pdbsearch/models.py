@@ -1,25 +1,25 @@
 from dataclasses import dataclass
 from .request import send_request, create_request_options
+from .query import query
+from abc import ABC, abstractmethod
 
-@dataclass
-class TerminalNode:
-    """A terminal node in a query graph. It specifies one search criterion.
-    
-    :param str service: the name of the RCSB search service to use.
-    :param dict parameters: the parameters for the search."""
+class QueryNode(ABC):
+    """A base class for all query nodes."""
 
-    service: str
-    parameters: dict
-
+    @abstractmethod
     def serialize(self):
-        """Returns a JSON-serializable representation of the node.
-        
-        :rtype: ``dict``"""
+        pass
 
-        node = {"type": "terminal", "service": self.service}
-        if self.parameters: node["parameters"] = self.parameters
-        return node
     
+    @abstractmethod
+    def and_(self, *args, **kwargs):
+        pass
+
+
+    @abstractmethod
+    def or_(self, *args, **kwargs):
+        pass
+
 
     def execute(self, return_type, return_all=False, start=None, rows=None, counts_only=False, ids_only=False):
         """Executes the node and returns the result.
@@ -45,7 +45,64 @@ class TerminalNode:
 
 
 @dataclass
-class GroupNode:
+class TerminalNode(QueryNode):
+    """A terminal node in a query graph. It specifies one search criterion.
+    
+    :param str service: the name of the RCSB search service to use.
+    :param dict parameters: the parameters for the search."""
+
+    service: str
+    parameters: dict
+
+    def and_(self, *args, **kwargs):
+        """Combines this terminal node with another node using the AND logical
+        operator, to create a new group node.
+
+        You can either provide another node as a single positional argument, or
+        you can provide keyword arguments to the query function.
+        
+        :rtype: ``GroupNode``"""
+
+        if len(args) == 1 and isinstance(args[0], QueryNode):
+            other = args[0]
+        else:
+            other = query(*args, **kwargs)
+        if isinstance(other, GroupNode) and other.logical_operator == "and":
+            return GroupNode("and", [self, *other.nodes])
+        return GroupNode("and", [self, other])
+    
+
+    def or_(self, *args, **kwargs):
+        """Combines this terminal node with another node using the OR logical
+        operator, to create a new group node.
+
+        You can either provide another node as a single positional argument, or
+        you can provide keyword arguments to the query function.
+        
+        :rtype: ``GroupNode``"""
+
+        if len(args) == 1 and isinstance(args[0], QueryNode):
+            other = args[0]
+        else:
+            other = query(*args, **kwargs)
+        if isinstance(other, GroupNode) and other.logical_operator == "or":
+            return GroupNode("or", [self, *other.nodes])
+        return GroupNode("or", [self, other])
+
+
+    def serialize(self):
+        """Returns a JSON-serializable representation of the node.
+        
+        :rtype: ``dict``"""
+
+        node = {"type": "terminal", "service": self.service}
+        if self.parameters: node["parameters"] = self.parameters
+        return node
+
+
+
+@dataclass
+class GroupNode(QueryNode):
     """A group node in a query graph. It combines multiple nodes with a logical
     operator for arbitrary boolean logic.
 
@@ -53,7 +110,53 @@ class GroupNode:
     :param list nodes: the nodes to group."""
 
     logical_operator: str
-    nodes: list
+    nodes: list[QueryNode]
+
+    def and_(self, *args, **kwargs):
+        """Combines this group node with another node using the AND logical
+        operator, to create a new group node.
+
+        You can either provide another node as a single positional argument, or
+        you can provide keyword arguments to the query function.
+        
+        :rtype: ``GroupNode``"""
+
+        if len(args) == 1 and isinstance(args[0], QueryNode):
+            other = args[0]
+        else:
+            other = query(*args, **kwargs)
+        if isinstance(other, TerminalNode):
+            if self.logical_operator == "and":
+                return GroupNode("and", [*self.nodes, other])
+            elif self.logical_operator == "or":
+                return GroupNode("and", [self, other])
+        elif self.logical_operator == other.logical_operator == "and":
+            return GroupNode("and", [*self.nodes, *other.nodes])
+        return GroupNode("and", [self, other])
+
+
+    def or_(self, *args, **kwargs):
+        """Combines this group node with another node using the OR logical
+        operator, to create a new group node.
+
+        You can either provide another node as a single positional argument, or
+        you can provide keyword arguments to the query function.
+        
+        :rtype: ``GroupNode``"""
+
+        if len(args) == 1 and isinstance(args[0], QueryNode):
+            other = args[0]
+        else:
+            other = query(*args, **kwargs)
+        if isinstance(other, TerminalNode):
+            if self.logical_operator == "and":
+                return GroupNode("or", [self, other])
+            elif self.logical_operator == "or":
+                return GroupNode("or", [*self.nodes, other])
+        elif self.logical_operator == other.logical_operator == "or":
+            return GroupNode("or", [*self.nodes, *other.nodes])
+        return GroupNode("or", [self, other])
+    
 
     def serialize(self):
         """Returns a JSON-serializable representation of the node.

@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from pdbsearch.query import query, get_text_parameters
 
-@patch("pdbsearch.query.TerminalNode")
+@patch("pdbsearch.models.TerminalNode")
 class QueryTests(TestCase):
 
     def test_empty_query(self, mock_terminal_node):

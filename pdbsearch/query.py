@@ -1,4 +1,3 @@
-from .models import TerminalNode
 
 def query(text=None, **kwargs):
     """Returns a terminal query node for some service. The service will be
@@ -10,6 +9,7 @@ def query(text=None, **kwargs):
     :param str text: the text to search for (triggers the full-text service).
     :rtype: ``TerminalNode``"""
 
+    from .models import TerminalNode
     service_is_full_text = text is not None
     service_is_text = bool(kwargs)
     if sum((service_is_full_text, service_is_text)) > 1:
