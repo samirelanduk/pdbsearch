@@ -12,7 +12,9 @@ class TerminalNode:
     parameters: dict
 
     def serialize(self):
-        """Returns a JSON-serializable representation of the node."""
+        """Returns a JSON-serializable representation of the node.
+        
+        :rtype: ``dict``"""
 
         node = {"type": "terminal", "service": self.service}
         if self.parameters: node["parameters"] = self.parameters
@@ -39,3 +41,27 @@ class TerminalNode:
         ):
             request["request_options"] = request_options
         return send_request(request, ids_only=ids_only)
+
+
+
+@dataclass
+class GroupNode:
+    """A group node in a query graph. It combines multiple nodes with a logical
+    operator for arbitrary boolean logic.
+
+    :param str logical_operator: the logical operator to use for the group.
+    :param list nodes: the nodes to group."""
+
+    logical_operator: str
+    nodes: list
+
+    def serialize(self):
+        """Returns a JSON-serializable representation of the node.
+        
+        :rtype: ``dict``"""
+
+        return {
+            "type": "group",
+            "logical_operator": self.logical_operator,
+            "nodes": [node.serialize() for node in self.nodes]
+        }

@@ -1,6 +1,6 @@
 from unittest import TestCase
-from unittest.mock import patch
-from pdbsearch.models import TerminalNode
+from unittest.mock import patch, Mock
+from pdbsearch.models import TerminalNode, GroupNode
 
 class TerminalNodeCreationTests(TestCase):
 
@@ -74,3 +74,27 @@ class TerminalNodeExecutionTests(TestCase):
             rows=20,
             counts_only=True
         )
+
+
+
+class GroupNodeCreationTests(TestCase):
+
+    def test_can_create_group_node(self):
+        node = GroupNode("and", [1, 2])
+        self.assertEqual(node.logical_operator, "and")
+        self.assertEqual(node.nodes, [1, 2])
+
+
+
+class GroupNodeSerializationTests(TestCase):
+
+    def test_can_serialize_group_node(self):
+        node1, node2 = Mock(), Mock()
+        node = GroupNode("and", [node1, node2])
+        self.assertEqual(node.serialize(), {
+            "type": "group",
+            "logical_operator": "and",
+            "nodes": [node1.serialize.return_value, node2.serialize.return_value]
+        })
+        node1.serialize.assert_called_once_with()
+        node2.serialize.assert_called_once_with()
