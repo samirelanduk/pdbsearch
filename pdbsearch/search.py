@@ -22,25 +22,18 @@ def search(return_type, **kwargs):
     return response.json()
 
 
-def entries(**kwargs):
-    return search("entry", **kwargs)
+
+function_names = {
+    "entry": "entries",
+    "polymer_entity": "polymer_entities",
+    "non_polymer_entity": "non_polymer_entities",
+    "polymer_instance": "polymer_instances",
+    "assembly": "assemblies",
+    "mol_definition": "mol_definitions",
+}
 
 
-def polymer_entities(**kwargs):
-    return search("polymer_entity", **kwargs)
-
-
-def non_polymer_entities(**kwargs):
-    return search("non_polymer_entity", **kwargs)
-
-
-def polymer_instances(**kwargs):
-    return search("polymer_instance", **kwargs)
-
-
-def assemblies(**kwargs):
-    return search("assembly", **kwargs)
-
-
-def mol_definitions(**kwargs):
-    return search("mol_definition", **kwargs)
+for entity_type in function_names.keys():
+    def dynamic_function(**kwargs):
+        return search(entity_type, **kwargs)
+    globals()[function_names[entity_type]] = dynamic_function
