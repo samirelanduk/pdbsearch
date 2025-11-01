@@ -1,8 +1,9 @@
 import requests
+from typing import Any, Callable
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type, **kwargs):
+def search(return_type, ids_only=False, **kwargs):
     query = {
         "return_type": return_type,
     }
@@ -19,7 +20,11 @@ def search(return_type, **kwargs):
             }
         }
     response = requests.post(SEARCH_URL, json=query)
-    return response.json()
+    result = response.json()
+    if ids_only:
+        return [r["identifier"] for r in result["result_set"]]
+    else:
+        return result
 
 
 
@@ -33,7 +38,15 @@ function_names = {
 }
 
 
-for entity_type in function_names.keys():
-    def dynamic_function(**kwargs):
-        return search(entity_type, **kwargs)
-    globals()[function_names[entity_type]] = dynamic_function
+
+def create_return_type_function(return_type):
+    def function(**kwargs):
+        return search(return_type, **kwargs)
+    return function
+
+entries = create_return_type_function("entry")
+polymer_entities = create_return_type_function("polymer_entity")
+non_polymer_entities = create_return_type_function("non_polymer_entity")
+polymer_instances = create_return_type_function("polymer_instance")
+assemblies = create_return_type_function("assembly")
+mol_definitions = create_return_type_function("mol_definition")
