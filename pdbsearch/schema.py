@@ -1,3 +1,5 @@
+import requests
+
 RCSB_METADATA_SCHEMA = {
     "pdbx_entity_nonpoly": {
         "name": {
@@ -6304,6 +6306,43 @@ RCSB_CHEMICAL_SCHEMA = {
     }
 }
 
+STRUCTURE_ATTRIBUTES_URL = "https://search.rcsb.org/rcsbsearch/v2/metadata/schema"
+
+CHEMICAL_ATTRIBUTES_URL = "https://search.rcsb.org/rcsbsearch/v2/metadata/chemical/schema"
+
+
+def download_rcsb_schema(url):
+    """Downloads an RCSB schema file and parses it into the pdbsearch format.
+
+    :param str url: URL of the RCSB schema file, or "structure" or "chemical".
+    :rtype: dict"""
+
+    if url == "structure": url = STRUCTURE_ATTRIBUTES_URL
+    if url == "chemical": url = CHEMICAL_ATTRIBUTES_URL
+    return parse_rcsb_schema(requests.get(url).json())
+
+
+def parse_rcsb_schema(schema):
+    """Converts an RCSB schema object into the pdbsearch format.
+
+    :param dict schema: The RCSB schema object.
+    :rtype: dict"""
+
+    if schema.get("type") == "array": return parse_rcsb_schema(schema["items"])
+    if schema.get("type") == "object":
+        o = {}
+        for key, value in schema["properties"].items():
+            if processed := parse_rcsb_schema(value): o[key] = processed
+        return o
+    if search := schema.get("rcsb_search_context"):
+        return {
+            "type": schema.get("type", [t["type"] for t in schema.get("anyOf", [])]),
+            "description": schema.get("description", ""),
+            "search": search,
+            "is_terminal": True
+        }
+
+
 def get_attribute_names(schema, prefix=""):
     """Takes a schema-describing object (such as RCSB_METADATA_SCHEMA or
     RCSB_CHEMICAL_SCHEMA) and returns a list of all attribute names that it
@@ -6312,7 +6351,7 @@ def get_attribute_names(schema, prefix=""):
     :param dict schema: The schema-describing object.
     :param str prefix: Prefix prepended to attributes (used in recursive calls).
     :rtype: list[str]"""
-    
+
     names = []
     for k, v in schema.items():
         value = f"{prefix}{'.' if prefix else ''}{k}"
