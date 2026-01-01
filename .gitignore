@@ -12,3 +12,4 @@ profiles
 *.json
 *.svg
 *.eps
+*old*
