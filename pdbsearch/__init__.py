@@ -1,8 +1,27 @@
 import requests
+from dataclasses import dataclass
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type, return_all=False, start=None, rows=None):
+@dataclass
+class TerminalNode:
+    service: str
+    parameters: dict
+
+    def serialize(self):
+        """Creates the JSON-serializable representation of the node.
+        
+        :rtype: ``dict``"""
+
+        return {
+            "type": "terminal",
+            "service": self.service,
+            "parameters": self.parameters
+        }
+
+
+
+def search(return_type, node=None, return_all=False, start=None, rows=None):
     """Queries the RCSB search API.
 
     :param str return_type: the type of data to return.
@@ -12,6 +31,7 @@ def search(return_type, return_all=False, start=None, rows=None):
     query = {
         "return_type": return_type,
     }
+    if node: query["query"] = node.serialize()
     if request_options := create_request_options(return_all, start, rows):
         query["request_options"] = request_options
     return send_request(query)
