@@ -2,7 +2,7 @@ import requests
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type, return_all=False):
+def search(return_type, return_all=False, start=None, rows=None):
     """Queries the RCSB search API.
 
     :param str return_type: the type of data to return.
@@ -12,9 +12,29 @@ def search(return_type, return_all=False):
     query = {
         "return_type": return_type,
     }
-    if return_all:
-        query["request_options"] = {"return_all_hits": True}
+    if request_options := create_request_options(return_all, start, rows):
+        query["request_options"] = request_options
     return send_request(query)
+
+
+def create_request_options(return_all=False, start=None, rows=None):
+    """Creates a request options dictionary for the RCSB search API.
+    
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :rtype: ``dict``"""
+
+    request_options = {}
+    if return_all:
+        request_options["return_all_hits"] = True
+    if (start is not None) or (rows is not None):
+        request_options["paginate"] = {}
+        if start is not None:
+            request_options["paginate"]["start"] = start
+        if rows is not None:
+            request_options["paginate"]["rows"] = rows
+    return request_options
 
 
 def send_request(query):

@@ -1,21 +1,53 @@
 from unittest import TestCase
 from unittest.mock import patch
-from pdbsearch import search, send_request, SEARCH_URL
+from pdbsearch import search, send_request, create_request_options, SEARCH_URL
 
 class SearchTests(TestCase):
 
+    @patch("pdbsearch.create_request_options")
     @patch("pdbsearch.send_request")
-    def test_can_search(self, mock_send_request):
+    def test_can_search_without_options(self, mock_send_request, mock_create_request_options):
+        mock_create_request_options.return_value = {}
         result = search("entry")
         mock_send_request.assert_called_once_with({"return_type": "entry"})
         self.assertEqual(result, mock_send_request.return_value)
     
 
+    @patch("pdbsearch.create_request_options")
     @patch("pdbsearch.send_request")
-    def test_can_search_return_all(self, mock_send_request):
+    def test_can_search_with_options(self, mock_send_request, mock_create_request_options):
+        mock_create_request_options.return_value = {"xxx": True}
         result = search("entry", return_all=True)
-        mock_send_request.assert_called_once_with({"return_type": "entry", "request_options": {"return_all_hits": True}})
+        mock_send_request.assert_called_once_with({"return_type": "entry", "request_options": {"xxx": True}})
         self.assertEqual(result, mock_send_request.return_value)
+
+
+
+class CreateRequestOptionsTests(TestCase):
+
+    def test_can_return_empty_options(self):
+        result = create_request_options()
+        self.assertEqual(result, {})
+    
+
+    def test_return_all_options(self):
+        result = create_request_options(return_all=True)
+        self.assertEqual(result, {"return_all_hits": True})
+
+
+    def test_start(self):
+        result = create_request_options(start=10)
+        self.assertEqual(result, {"paginate": {"start": 10}})
+
+
+    def test_rows(self):
+        result = create_request_options(rows=10)
+        self.assertEqual(result, {"paginate": {"rows": 10}})
+
+
+    def test_start_and_rows(self):
+        result = create_request_options(start=10, rows=5)
+        self.assertEqual(result, {"paginate": {"start": 10, "rows": 5}})
 
 
 
