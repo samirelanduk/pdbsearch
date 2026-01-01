@@ -20,6 +20,17 @@ class TerminalNode:
         }
 
 
+def full_text_node(term):
+    """Creates a full text node for some search term.
+    
+    :param str term: the search term.
+    :rtype: ``TerminalNode``"""
+
+    return TerminalNode(
+        service="full_text", 
+        parameters={"value": term}
+    )
+
 
 def search(return_type, node=None, return_all=False, start=None, rows=None):
     """Queries the RCSB search API.

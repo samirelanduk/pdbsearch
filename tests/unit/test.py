@@ -1,6 +1,15 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import search, send_request, create_request_options, SEARCH_URL
+from pdbsearch import full_text_node, search, send_request, create_request_options, SEARCH_URL
+
+class FullTextNodeTests(TestCase):
+
+    def test_can_create_full_text_node(self):
+        node = full_text_node("thymidine kinase")
+        self.assertEqual(node.service, "full_text")
+        self.assertEqual(node.parameters, {"value": "thymidine kinase"})
+
+
 
 class SearchTests(TestCase):
 
