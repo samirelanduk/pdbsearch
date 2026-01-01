@@ -2,15 +2,18 @@ import requests
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type):
+def search(return_type, return_all=False):
     """Queries the RCSB search API.
 
     :param str return_type: the type of data to return.
+    :param bool return_all: whether to return all results, unpaginated.
     :rtype: ``dict``"""
 
     query = {
         "return_type": return_type,
     }
+    if return_all:
+        query["request_options"] = {"return_all_hits": True}
     return send_request(query)
 
 

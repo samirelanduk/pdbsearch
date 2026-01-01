@@ -9,6 +9,13 @@ class SearchTests(TestCase):
         result = search("entry")
         mock_send_request.assert_called_once_with({"return_type": "entry"})
         self.assertEqual(result, mock_send_request.return_value)
+    
+
+    @patch("pdbsearch.send_request")
+    def test_can_search_return_all(self, mock_send_request):
+        result = search("entry", return_all=True)
+        mock_send_request.assert_called_once_with({"return_type": "entry", "request_options": {"return_all_hits": True}})
+        self.assertEqual(result, mock_send_request.return_value)
 
 
 
