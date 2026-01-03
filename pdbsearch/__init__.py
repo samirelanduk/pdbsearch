@@ -50,6 +50,28 @@ def text_node(**kwargs):
     )
 
 
+def sequence_node(protein=None, dna=None, rna=None, identity=None, evalue=None):
+    """Creates a sequence node, for a protein, DNA, or RNA sequence. One and
+    only one of ``protein``, ``dna``, or ``rna`` must be provided.
+    
+    :param str protein: the protein sequence.
+    :param str dna: the DNA sequence.
+    :param str rna: the RNA sequence.
+    :param float identity: the identity cutoff.
+    :param float evalue: the evalue cutoff.
+    :rtype: ``TerminalNode``"""
+
+    sequence = protein or dna or rna
+    if not sequence: raise ValueError("Sequence not provided")
+    if sum(bool(x) for x in [protein, dna, rna]) > 1:
+        raise ValueError("Only one sequence type can be provided")
+    sequence_type = "protein" if protein else "dna" if dna else "rna"
+    parameters = {"sequence_type": sequence_type, "value": sequence}
+    if identity is not None: parameters["identity_cutoff"] = identity
+    if evalue is not None: parameters["evalue_cutoff"] = evalue
+    return TerminalNode(service="sequence", parameters=parameters)
+
+
 def get_text_parameters(key, value):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes
@@ -60,7 +82,7 @@ def get_text_parameters(key, value):
     to see if the term is numeric):
 
     .. code-block:: text
-    
+
         __gt                greater_than
         __lt                less_than
         __gte               greater_or_equal

@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import full_text_node, text_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
+from pdbsearch import full_text_node, text_node, sequence_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
 
 class FullTextNodeTests(TestCase):
 
@@ -26,10 +26,53 @@ class TextNodeTests(TestCase):
         with self.assertRaises(ValueError):
             text_node()
     
-    
+
     def test_cant_have_multiple_arguments(self):
         with self.assertRaises(ValueError):
             text_node(name="xxx", name2="yyy")
+
+
+
+class SequenceNodeTests(TestCase):
+
+    def test_can_create_protein_sequence_node(self):
+        node = sequence_node(protein="MALWMRLLPLLALLALWGPDPAAA")
+        self.assertEqual(node.service, "sequence")
+        self.assertEqual(node.parameters, {"sequence_type": "protein", "value": "MALWMRLLPLLALLALWGPDPAAA"})
+    
+
+    def test_can_create_dna_sequence_node(self):
+        node = sequence_node(dna="ATGC")
+        self.assertEqual(node.service, "sequence")
+        self.assertEqual(node.parameters, {"sequence_type": "dna", "value": "ATGC"})
+    
+
+    def test_can_create_rna_sequence_node(self):
+        node = sequence_node(rna="AUGC")
+        self.assertEqual(node.service, "sequence")
+        self.assertEqual(node.parameters, {"sequence_type": "rna", "value": "AUGC"})
+    
+
+    def test_can_provide_identity_cutoff(self):
+        node = sequence_node(protein="MALWMRLLPLLALLALWGPDPAAA", identity=0.95)
+        self.assertEqual(node.service, "sequence")
+        self.assertEqual(node.parameters, {"sequence_type": "protein", "value": "MALWMRLLPLLALLALWGPDPAAA", "identity_cutoff": 0.95})
+    
+
+    def test_can_provide_evalue_cutoff(self):
+        node = sequence_node(protein="MALWMRLLPLLALLALWGPDPAAA", evalue=0.0001)
+        self.assertEqual(node.service, "sequence")
+        self.assertEqual(node.parameters, {"sequence_type": "protein", "value": "MALWMRLLPLLALLALWGPDPAAA", "evalue_cutoff": 0.0001})
+    
+
+    def test_cant_have_zero_sequences(self):
+        with self.assertRaises(ValueError):
+            sequence_node()
+    
+
+    def test_cant_have_multiple_sequences(self):
+        with self.assertRaises(ValueError):
+            sequence_node(protein="MALWMRLLPLLALLALWGPDPAAA", dna="ATGC")
 
 
 
