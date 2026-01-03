@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import full_text_node, text_node, sequence_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
+from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
 
 class FullTextNodeTests(TestCase):
 
@@ -30,6 +30,28 @@ class TextNodeTests(TestCase):
     def test_cant_have_multiple_arguments(self):
         with self.assertRaises(ValueError):
             text_node(name="xxx", name2="yyy")
+
+
+
+class ChemTextNodeTests(TestCase):
+
+    @patch("pdbsearch.get_text_parameters")
+    def test_can_create_chem_text_node(self, mock_get_text_parameters):
+        mock_get_text_parameters.return_value = {1: 2}
+        node = text_chem_node(name="xxx")
+        self.assertEqual(node.service, "text_chem")
+        self.assertEqual(node.parameters, {1: 2})
+        mock_get_text_parameters.assert_called_once_with("name", "xxx", text_chem=True)
+    
+
+    def test_cant_have_zero_arguments(self):
+        with self.assertRaises(ValueError):
+            text_chem_node()
+    
+
+    def test_cant_have_multiple_arguments(self):
+        with self.assertRaises(ValueError):
+            text_chem_node(name="xxx", name2="yyy")
 
 
 
@@ -216,6 +238,11 @@ class GetTextParametersTests(TestCase):
     def test_invalid_term(self):
         with self.assertRaises(ValueError):
             get_text_parameters("pdbx_entity_nonpoly__name__invalid", "xxx")
+    
+
+    def test_can_use_chem_text_parameters(self):
+        parameters = get_text_parameters("chem_comp__formula_weight__lt", 1000, text_chem=True)
+        self.assertEqual(parameters, {"attribute": "chem_comp.formula_weight", "operator": "less_than", "value": 1000})
 
 
 

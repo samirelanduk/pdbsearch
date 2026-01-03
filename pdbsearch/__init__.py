@@ -1,6 +1,6 @@
 import requests
 from dataclasses import dataclass
-from pdbsearch.terms import TEXT_TERMS
+from pdbsearch.terms import TEXT_TERMS, TEXT_CHEM_TERMS
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
@@ -50,6 +50,23 @@ def text_node(**kwargs):
     )
 
 
+def text_chem_node(**kwargs):
+    """Creates a chem_text node for some search term. Only one key=value pair
+    can be provided, and it must correspond to a valid term in the schema.
+
+    :param kwargs: the key=value pairs to create the node from.
+    :rtype: ``TerminalNode``"""
+
+    if not kwargs: raise ValueError("At least one keyword argument is required")
+    if len(kwargs) > 1: raise ValueError("Only one keyword argument is allowed")
+    key, value = next(iter(kwargs.items()))
+    parameters = get_text_parameters(key, value, text_chem=True)
+    return TerminalNode(
+        service="text_chem", 
+        parameters=parameters
+    )
+
+
 def sequence_node(protein=None, dna=None, rna=None, identity=None, evalue=None):
     """Creates a sequence node, for a protein, DNA, or RNA sequence. One and
     only one of ``protein``, ``dna``, or ``rna`` must be provided.
@@ -72,7 +89,7 @@ def sequence_node(protein=None, dna=None, rna=None, identity=None, evalue=None):
     return TerminalNode(service="sequence", parameters=parameters)
 
 
-def get_text_parameters(key, value):
+def get_text_parameters(key, value, text_chem=False):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes
     to determine the operator and negation.
@@ -99,6 +116,7 @@ def get_text_parameters(key, value):
     :param value: the value of the term.
     :rtype: ``dict``"""
 
+    terms = TEXT_CHEM_TERMS if text_chem else TEXT_TERMS
     operator, negation = "", False
     lookup = {
         "__gt": "greater_than", "__lt": "less_than",
@@ -124,9 +142,9 @@ def get_text_parameters(key, value):
         negation = not negation
         key = key[:-5]
     key = key.replace("__", ".")
-    if key not in TEXT_TERMS: raise ValueError(f"Invalid term: {key}")
+    if key not in terms: raise ValueError(f"Invalid term: {key}")
     if not operator:
-        is_numeric = "default-match" in TEXT_TERMS[key]
+        is_numeric = "default-match" in terms[key]
         operator = "equals" if is_numeric else "exact_match"
     parameters = {"attribute": key, "operator": operator}
     if operator != "exists": parameters["value"] = value

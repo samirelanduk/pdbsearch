@@ -2109,3 +2109,186 @@ TEXT_TERMS = {
         "full-text"
     ]
 }
+
+TEXT_CHEM_TERMS = {
+    "chem_comp.formula_weight": [
+        "default-match"
+    ],
+    "chem_comp.name": [
+        "exact-match",
+        "full-text",
+        "suggest"
+    ],
+    "chem_comp.type": [
+        "exact-match"
+    ],
+    "pdbx_reference_molecule.class": [
+        "exact-match",
+        "full-text"
+    ],
+    "pdbx_reference_molecule.description": [
+        "full-text"
+    ],
+    "pdbx_reference_molecule.name": [
+        "full-text"
+    ],
+    "pdbx_reference_molecule.prd_id": [
+        "exact-match",
+        "suggest"
+    ],
+    "pdbx_reference_molecule.type": [
+        "exact-match"
+    ],
+    "pdbx_reference_molecule_family.name": [
+        "full-text"
+    ],
+    "pdbx_reference_molecule_related_structures.db_code": [
+        "full-text"
+    ],
+    "pdbx_reference_molecule_synonyms.name": [
+        "full-text"
+    ],
+    "rcsb_chem_comp_annotation.annotation_id": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_annotation.description": [
+        "exact-match",
+        "full-text"
+    ],
+    "rcsb_chem_comp_annotation.name": [
+        "exact-match",
+        "full-text"
+    ],
+    "rcsb_chem_comp_annotation.type": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_annotation.annotation_lineage.depth": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_annotation.annotation_lineage.id": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_annotation.annotation_lineage.name": [
+        "exact-match",
+        "full-text"
+    ],
+    "rcsb_chem_comp_container_identifiers.comp_id": [
+        "exact-match",
+        "suggest"
+    ],
+    "rcsb_chem_comp_container_identifiers.drugbank_id": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_container_identifiers.prd_id": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_container_identifiers.rcsb_id": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_descriptor.InChIKey": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_info.atom_count_chiral": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_info.atom_count_heavy": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_info.bond_count": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_info.bond_count_aromatic": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_info.initial_deposition_date": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_info.initial_release_date": [
+        "default-match"
+    ],
+    "rcsb_chem_comp_related.resource_accession_code": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_related.resource_name": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_synonyms.name": [
+        "full-text",
+        "suggest"
+    ],
+    "rcsb_chem_comp_synonyms.provenance_source": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_synonyms.type": [
+        "exact-match"
+    ],
+    "rcsb_chem_comp_target.name": [
+        "full-text"
+    ],
+    "rcsb_id": [
+        "exact-match"
+    ],
+    "drugbank_container_identifiers.drugbank_id": [
+        "exact-match"
+    ],
+    "drugbank_info.affected_organisms": [
+        "full-text"
+    ],
+    "drugbank_info.atc_codes": [
+        "exact-match"
+    ],
+    "drugbank_info.brand_names": [
+        "full-text"
+    ],
+    "drugbank_info.cas_number": [
+        "exact-match"
+    ],
+    "drugbank_info.description": [
+        "full-text"
+    ],
+    "drugbank_info.drug_categories": [
+        "full-text"
+    ],
+    "drugbank_info.drug_groups": [
+        "exact-match"
+    ],
+    "drugbank_info.indication": [
+        "full-text"
+    ],
+    "drugbank_info.mechanism_of_action": [
+        "full-text"
+    ],
+    "drugbank_info.name": [
+        "full-text"
+    ],
+    "drugbank_info.pharmacology": [
+        "full-text"
+    ],
+    "drugbank_info.synonyms": [
+        "full-text"
+    ],
+    "drugbank_info.drug_products.approved": [
+        "exact-match"
+    ],
+    "drugbank_info.drug_products.country": [
+        "exact-match"
+    ],
+    "drugbank_info.drug_products.ended_marketing_on": [
+        "default-match"
+    ],
+    "drugbank_info.drug_products.started_marketing_on": [
+        "default-match"
+    ],
+    "drugbank_target.interaction_type": [
+        "full-text"
+    ],
+    "drugbank_target.name": [
+        "full-text"
+    ],
+    "drugbank_target.organism_common_name": [
+        "full-text"
+    ],
+    "drugbank_target.target_actions": [
+        "full-text"
+    ]
+}
