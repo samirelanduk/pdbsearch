@@ -1,6 +1,6 @@
 from unittest import TestCase
-from unittest.mock import patch
-from pdbsearch.schema import fetch_names_from_rcsb_schema
+from unittest.mock import patch, call
+from pdbsearch.schema import fetch_names_from_rcsb_schema, update_terms_from_api
 from pdbsearch.schema import process_schema_object, get_attribute_names
 
 class FetchNamesFromRCSBSchemaTests(TestCase):
@@ -13,7 +13,18 @@ class FetchNamesFromRCSBSchemaTests(TestCase):
         self.assertEqual(names, mock_get_attribute_names.return_value)
         mock_get_attribute_names.assert_called_once_with(mock_process_schema_object.return_value)
         mock_process_schema_object.assert_called_once_with(mock_get.return_value.json.return_value)
-        mock_get.assert_called_once_with("https://search.rcsb.org/rcsbsearch/v2/metadata/schema")
+        mock_get.assert_called_once_with("https://search.rcsb.org/rcsbsearch/v2/metadata/schema", timeout=None)
+    
+
+    @patch("requests.get")
+    @patch("pdbsearch.schema.process_schema_object")
+    @patch("pdbsearch.schema.get_attribute_names")
+    def test_can_fetch_names_from_rcsb_schema_with_timeout(self, mock_get_attribute_names, mock_process_schema_object, mock_get):
+        names = fetch_names_from_rcsb_schema(timeout=100)
+        self.assertEqual(names, mock_get_attribute_names.return_value)
+        mock_get_attribute_names.assert_called_once_with(mock_process_schema_object.return_value)
+        mock_process_schema_object.assert_called_once_with(mock_get.return_value.json.return_value)
+        mock_get.assert_called_once_with("https://search.rcsb.org/rcsbsearch/v2/metadata/schema", timeout=100)
     
 
     @patch("requests.get")
@@ -24,7 +35,32 @@ class FetchNamesFromRCSBSchemaTests(TestCase):
         self.assertEqual(names, mock_get_attribute_names.return_value)
         mock_get_attribute_names.assert_called_once_with(mock_process_schema_object.return_value)
         mock_process_schema_object.assert_called_once_with(mock_get.return_value.json.return_value)
-        mock_get.assert_called_once_with("https://search.rcsb.org/rcsbsearch/v2/metadata/chemical/schema")
+        mock_get.assert_called_once_with("https://search.rcsb.org/rcsbsearch/v2/metadata/chemical/schema", timeout=None)
+
+
+
+class UpdateTermsFromAPITests(TestCase):
+
+    @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
+    def test_can_update_terms(self, mock_fetch_names):
+        mock_fetch_names.side_effect = [{1: 2}, {3: 4}]
+        self.assertTrue(update_terms_from_api())
+        from pdbsearch import terms
+        self.assertEqual(terms.TEXT_TERMS, {1: 2})
+        self.assertEqual(terms.TEXT_CHEM_TERMS, {3: 4})
+        mock_fetch_names.assert_has_calls([
+            call(chemical=False, timeout=2),
+            call(chemical=True, timeout=2)
+        ])
+    
+
+    @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
+    def test_can_fail_silently(self, mock_fetch_names):
+        mock_fetch_names.side_effect = [{1: 2}, ValueError]
+        self.assertFalse(update_terms_from_api())
+        from pdbsearch import terms
+        self.assertIn("drugbank_target.name", terms.TEXT_TERMS)
+        self.assertIn("drugbank_target.name", terms.TEXT_CHEM_TERMS)
 
 
 

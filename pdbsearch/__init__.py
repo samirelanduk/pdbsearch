@@ -1,6 +1,11 @@
+import os
 import requests
 from dataclasses import dataclass
 from pdbsearch.terms import TEXT_TERMS, TEXT_CHEM_TERMS
+from pdbsearch.schema import update_terms_from_api
+
+if not os.environ.get("PDBSEARCH_NO_UPDATE"):
+    update_terms_from_api()
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
