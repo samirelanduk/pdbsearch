@@ -28,5 +28,10 @@ setup(
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB MMCIF",
  packages=["pdbsearch"],
  python_requires="!=2.*, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*",
- install_requires=["requests"]
+ install_requires=["requests"],
+ entry_points={
+    "console_scripts": [
+        "pdbsearch=pdbsearch.__main__:main",
+    ],
+},
 )
