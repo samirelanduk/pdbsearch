@@ -94,6 +94,29 @@ def sequence_node(protein=None, dna=None, rna=None, identity=None, evalue=None):
     return TerminalNode(service="sequence", parameters=parameters)
 
 
+def seqmotif_node(protein=None, dna=None, rna=None, pattern_type="simple"):
+    """Creates a seqmotif node for a protein, DNA, or RNA pattern search. One
+    and only one of ``protein``, ``dna``, or ``rna`` must be provided.
+
+    :param str protein: the protein pattern.
+    :param str dna: the DNA pattern.
+    :param str rna: the RNA pattern.
+    :param str pattern_type: simple, prosite, or regex.
+    :rtype: ``TerminalNode``"""
+
+    pattern = protein or dna or rna
+    if not pattern: raise ValueError("Pattern not provided")
+    if sum(bool(x) for x in [protein, dna, rna]) > 1:
+        raise ValueError("Only one pattern type can be provided")
+    sequence_type = "protein" if protein else "dna" if dna else "rna"
+    parameters = {
+        "value": pattern,
+        "pattern_type": pattern_type,
+        "sequence_type": sequence_type
+    }
+    return TerminalNode(service="seqmotif", parameters=parameters)
+
+
 def get_text_parameters(key, value, text_chem=False):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes

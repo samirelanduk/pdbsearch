@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
+from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
 
 class FullTextNodeTests(TestCase):
 
@@ -97,6 +97,35 @@ class SequenceNodeTests(TestCase):
             sequence_node(protein="MALWMRLLPLLALLALWGPDPAAA", dna="ATGC")
 
 
+
+class SeqMotifNodeTests(TestCase):
+
+    def test_can_create_protein_seqmotif_node(self):
+        node = seqmotif_node(protein="MALWMRLLPLLALLALWGPDPAAA", pattern_type="simple")
+        self.assertEqual(node.service, "seqmotif")
+        self.assertEqual(node.parameters, {"pattern_type": "simple", "value": "MALWMRLLPLLALLALWGPDPAAA", "sequence_type": "protein"})
+    
+
+    def test_can_create_dna_seqmotif_node(self):
+        node = seqmotif_node(dna="ATGC", pattern_type="simple")
+        self.assertEqual(node.service, "seqmotif")
+        self.assertEqual(node.parameters, {"pattern_type": "simple", "value": "ATGC", "sequence_type": "dna"})
+    
+
+    def test_can_create_rna_seqmotif_node(self):
+        node = seqmotif_node(rna="AUGC", pattern_type="simple")
+        self.assertEqual(node.service, "seqmotif")
+        self.assertEqual(node.parameters, {"pattern_type": "simple", "value": "AUGC", "sequence_type": "rna"})
+    
+
+    def test_cant_have_zero_patterns(self):
+        with self.assertRaises(ValueError):
+            seqmotif_node()
+    
+
+    def test_cant_have_multiple_patterns(self):
+        with self.assertRaises(ValueError):
+            seqmotif_node(protein="MALWMRLLPLLALLALWGPDPAAA", dna="ATGC")
 
 class GetTextParametersTests(TestCase):
 
