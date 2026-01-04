@@ -1,6 +1,6 @@
 from unittest import TestCase
-from unittest.mock import Mock
-from pdbsearch.nodes import TerminalNode, GroupNode
+from unittest.mock import Mock, patch
+from pdbsearch.models import TerminalNode, GroupNode
 
 class TerminalNodeCreationTests(TestCase):
 
@@ -80,3 +80,21 @@ class TerminalNodeOrTests(TestCase):
         self.assertIsInstance(combined, GroupNode)
         self.assertEqual(combined.logical_operator, "or")
         self.assertEqual(combined.nodes, [node, other])
+
+
+
+# Base class method, tested here rather than in the GroupNodeTests class
+class TerminalNodeSearchTests(TestCase):
+
+    @patch("pdbsearch.models.search")
+    def test_can_search(self, mock_search):
+        node = TerminalNode("text", {"key": "value"})
+        node.search("entry")
+        mock_search.assert_called_once_with("entry", node, False, None, None)
+    
+
+    @patch("pdbsearch.models.search")
+    def test_can_search_with_options(self, mock_search):
+        node = TerminalNode("text", {"key": "value"})
+        node.search("entry", return_all=True, start=10, rows=20)
+        mock_search.assert_called_once_with("entry", node, True, 10, 20)

@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock
-from pdbsearch.nodes import TerminalNode, GroupNode
+from pdbsearch.models import TerminalNode, GroupNode
 
-class GriupNodeCreationTests(TestCase):
+class GroupNodeCreationTests(TestCase):
 
     def test_can_create_group_node(self):
         node = GroupNode(
