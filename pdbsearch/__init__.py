@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 from dataclasses import dataclass
 from pdbsearch.terms import TEXT_TERMS, TEXT_CHEM_TERMS
@@ -297,8 +298,8 @@ def create_request_options(return_all=False, start=None, rows=None):
 
 def send_request(query):
     """Sends a query dictionary to the RCSB search API. If a valid response is
-    received, this will be returned in JSON format. Otherwise ``None`` will be
-    returned.
+    received, this will be returned in JSON format. Otherwise the error message
+    will be written to stderr, and an exception will be raised.
     
     :param dict query: the query, formatted to RCSB specifications.
     :rtype: ``dict``"""
@@ -306,3 +307,12 @@ def send_request(query):
     response = requests.post(SEARCH_URL, json=query)
     if response.status_code == 200:
         return response.json()
+    try:
+        print(response.json(), file=sys.stderr)
+    except requests.exceptions.JSONDecodeError:
+        print(
+            response.status_code,
+            response.content.decode() if len(response.content) < 100 else "",
+            file=sys.stderr
+        )
+    response.raise_for_status()

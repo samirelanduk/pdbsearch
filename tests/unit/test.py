@@ -1,3 +1,6 @@
+import io
+import sys
+import requests
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, structure_node, strucmotif_node, chemical_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
@@ -436,10 +439,14 @@ class SendRequestTests(TestCase):
         self.mock_post = self.patch1.start()
         self.mock_post.return_value.status_code = 200
         self.mock_post.return_value.json.return_value = {"result_set": [{"identifier": 1}, {"identifier": 2}, {"identifier": 3}]}
+        self.stderr = io.StringIO()
+        self.old_stderr = sys.stderr
+        sys.stderr = self.stderr
     
 
     def tearDown(self):
         self.patch1.stop()
+        sys.stderr = self.old_stderr
     
 
     def test_can_send_request(self):
@@ -448,8 +455,30 @@ class SendRequestTests(TestCase):
         self.assertEqual(result, {"result_set": [{"identifier": 1}, {"identifier": 2}, {"identifier": 3}]})
     
 
-    def test_can_send_request_with_none_response(self):
-        self.mock_post.return_value.status_code = 204
-        result = send_request({1: 2})
+    def test_can_handle_json_error_response(self):
+        self.mock_post.return_value.status_code = 400
+        self.mock_post.return_value.json.return_value = {"error": "Invalid request"}
+        send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
-        self.assertIsNone(result)
+        stderr_output = self.stderr.getvalue()
+        self.assertEqual(stderr_output, "{'error': 'Invalid request'}\n")
+    
+
+    def test_can_handle_short_non_json_response(self):
+        self.mock_post.return_value.status_code = 400
+        self.mock_post.return_value.json.side_effect = requests.exceptions.JSONDecodeError("", "", 0)
+        self.mock_post.return_value.content = b"Invalid request"
+        send_request({1: 2})
+        self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
+        stderr_output = self.stderr.getvalue()
+        self.assertEqual(stderr_output, "400 Invalid request\n")
+    
+
+    def test_can_handle_long_non_json_response(self):
+        self.mock_post.return_value.status_code = 400
+        self.mock_post.return_value.json.side_effect = requests.exceptions.JSONDecodeError("", "", 0)
+        self.mock_post.return_value.content = b"X" * 101
+        send_request({1: 2})
+        self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
+        stderr_output = self.stderr.getvalue()
+        self.assertEqual(stderr_output, "400 \n")
