@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, structure_node, strucmotif_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
+from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, structure_node, strucmotif_node, chemical_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
 
 class FullTextNodeTests(TestCase):
 
@@ -188,10 +188,38 @@ class StrucMotifNodeTests(TestCase):
                 "residue_ids": [{"label_asym_id": "A", "label_seq_id": 162}, {"label_asym_id": "A", "label_seq_id": 193}, {"label_asym_id": "A", "label_seq_id": 219}]},
                 "exchanges": [{"residue_id": {"label_asym_id": "A", "label_seq_id": 162}, "allowed": ["LYS", "HIS"]}, {"residue_id": {"label_asym_id": "A", "label_seq_id": 245}, "allowed": ["GLU", "ASP", "ASN"]}, {"residue_id": {"label_asym_id": "A", "label_seq_id": 295}, "allowed": ["HIS", "LYS"]}]
             })
-    
 
 
+
+class ChemicalNodeTests(TestCase):
+
+    def test_can_create_smiles_chemical_node(self):
+        node = chemical_node(smiles="CC(C)C")
+        self.assertEqual(node.service, "chemical")
+        self.assertEqual(node.parameters, {"value": "CC(C)C", "type": "descriptor", "descriptor_type": "SMILES", "match_type": "graph-exact"})
     
+
+    def test_can_create_inchi_chemical_node(self):
+        node = chemical_node(inchi="InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2")
+        self.assertEqual(node.service, "chemical")
+        self.assertEqual(node.parameters, {"value": "InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2", "type": "descriptor", "descriptor_type": "InChI", "match_type": "graph-exact"})
+    
+
+    def test_must_provide_one_of_smiles_or_inchi(self):
+        with self.assertRaises(ValueError):
+            chemical_node()
+    
+
+    def test_cant_provide_both_smiles_and_inchi(self):
+        with self.assertRaises(ValueError):
+            chemical_node(smiles="CC(C)C", inchi="InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2")
+    
+
+    def test_can_change_match_type(self):
+        node = chemical_node(smiles="CC(C)C", match_type="graph-relaxed-stereo")
+        self.assertEqual(node.service, "chemical")
+        self.assertEqual(node.parameters, {"value": "CC(C)C", "type": "descriptor", "descriptor_type": "SMILES", "match_type": "graph-relaxed-stereo"})
+
 
 
 class GetTextParametersTests(TestCase):

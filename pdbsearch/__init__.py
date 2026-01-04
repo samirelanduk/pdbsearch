@@ -173,6 +173,29 @@ def strucmotif_node(entry, residues, rmsd=None, exchanges=None):
     return TerminalNode(service="strucmotif", parameters=parameters)
 
 
+def chemical_node(smiles=None, inchi=None, match_type="graph-exact"):
+    """Creates a chemical node for a chemical search. You can either provide a
+    SMILES or InChI string.
+    
+    :param str smiles: the SMILES string.
+    :param str inchi: the InChI string.
+    :param str match_type: the matching algorithm to use.
+    :rtype: ``TerminalNode``"""
+
+    value = smiles or inchi
+    if not value: raise ValueError("One of smiles or inchi must be provided")
+    if smiles and inchi:
+        raise ValueError("Only one of smiles or inchi can be provided")
+    descriptor_type = "SMILES" if smiles else "InChI"
+    parameters = {
+        "value": value,
+        "type": "descriptor",
+        "descriptor_type": descriptor_type,
+        "match_type": match_type
+    }
+    return TerminalNode(service="chemical", parameters=parameters)
+
+
 def get_text_parameters(key, value, text_chem=False):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes
