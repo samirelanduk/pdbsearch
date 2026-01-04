@@ -227,7 +227,7 @@ def get_text_parameters(key, value, text_chem=False):
     terms = TEXT_CHEM_TERMS if text_chem else TEXT_TERMS
     operator, negation = "", False
     lookup = {
-        "__gt": "greater_than", "__lt": "less_than",
+        "__gt": "greater", "__lt": "less",
         "__gte": "greater_or_equal", "__lte": "less_or_equal",
         "__in": "in", "__range": "range",
         "__contains_phrase": "contains_phrase",

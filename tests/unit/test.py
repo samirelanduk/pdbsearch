@@ -249,22 +249,22 @@ class GetTextParametersTests(TestCase):
 
     def test_greater_than(self):
         parameters = get_text_parameters("refine__B_iso_mean__gt", 123)
-        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "greater_than", "value": 123})
+        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "greater", "value": 123})
 
 
     def test_not_greater_than(self):
         parameters = get_text_parameters("refine__B_iso_mean__not__gt", 123)
-        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "greater_than", "negation": True, "value": 123})
+        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "greater", "negation": True, "value": 123})
 
 
     def test_less_than(self):
         parameters = get_text_parameters("refine__B_iso_mean__lt", 123)
-        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "less_than", "value": 123})
+        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "less", "value": 123})
 
 
     def test_not_less_than(self):
         parameters = get_text_parameters("refine__B_iso_mean__not__lt", 123)
-        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "less_than", "negation": True, "value": 123})
+        self.assertEqual(parameters, {"attribute": "refine.B_iso_mean", "operator": "less", "negation": True, "value": 123})
     
 
     def test_greater_or_equal(self):
@@ -369,7 +369,7 @@ class GetTextParametersTests(TestCase):
 
     def test_can_use_chem_text_parameters(self):
         parameters = get_text_parameters("chem_comp__formula_weight__lt", 1000, text_chem=True)
-        self.assertEqual(parameters, {"attribute": "chem_comp.formula_weight", "operator": "less_than", "value": 1000})
+        self.assertEqual(parameters, {"attribute": "chem_comp.formula_weight", "operator": "less", "value": 1000})
 
 
 
