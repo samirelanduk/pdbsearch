@@ -1,30 +1,14 @@
 import os
 import sys
 import requests
-from dataclasses import dataclass
 from pdbsearch.terms import TEXT_TERMS, TEXT_CHEM_TERMS
 from pdbsearch.schema import update_terms_from_api
+from pdbsearch.nodes import TerminalNode
 
 if not os.environ.get("PDBSEARCH_NO_UPDATE"):
     update_terms_from_api()
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
-
-@dataclass
-class TerminalNode:
-    service: str
-    parameters: dict
-
-    def serialize(self):
-        """Creates the JSON-serializable representation of the node.
-        
-        :rtype: ``dict``"""
-
-        return {
-            "type": "terminal",
-            "service": self.service,
-            "parameters": self.parameters
-        }
 
 
 def full_text_node(term):
