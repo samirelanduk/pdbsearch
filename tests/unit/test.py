@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
+from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, structure_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
 
 class FullTextNodeTests(TestCase):
 
@@ -126,6 +126,43 @@ class SeqMotifNodeTests(TestCase):
     def test_cant_have_multiple_patterns(self):
         with self.assertRaises(ValueError):
             seqmotif_node(protein="MALWMRLLPLLALLALWGPDPAAA", dna="ATGC")
+
+
+
+class StructureNodeTests(TestCase):
+
+    def test_can_get_by_entry(self):
+        node = structure_node("1CLL-5")
+        self.assertEqual(node.service, "structure")
+        self.assertEqual(node.parameters, {"value": {"entry_id": "1CLL", "assembly_id": "5"}, "operator": "strict_shape_match"})
+    
+
+    def test_can_get_by_url(self):
+        node = structure_node("https://alphafold.ebi.ac.uk/AFP61371F1.cif")
+        self.assertEqual(node.service, "structure")
+        self.assertEqual(node.parameters, {"value": {"url": "https://alphafold.ebi.ac.uk/AFP61371F1.cif", "format": "cif"}, "operator": "strict_shape_match"})
+    
+
+    def test_can_get_by_bcif_url(self):
+        node = structure_node("https://alphafold.ebi.ac.uk/AFP61371F1.bcif")
+        self.assertEqual(node.service, "structure")
+        self.assertEqual(node.parameters, {"value": {"url": "https://alphafold.ebi.ac.uk/AFP61371F1.bcif", "format": "bcif"}, "operator": "strict_shape_match"})
+    
+
+    def test_can_change_operator(self):
+        node = structure_node("1CLL-5", "relaxed_shape_match")
+        self.assertEqual(node.service, "structure")
+        self.assertEqual(node.parameters, {"value": {"entry_id": "1CLL", "assembly_id": "5"}, "operator": "relaxed_shape_match"})
+    
+
+    def test_entry_must_be_in_format_entry_assembly(self):
+        with self.assertRaises(ValueError):
+            structure_node("1CLL")
+    
+
+    
+
+
 
 class GetTextParametersTests(TestCase):
 

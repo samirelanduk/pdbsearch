@@ -117,6 +117,30 @@ def seqmotif_node(protein=None, dna=None, rna=None, pattern_type="simple"):
     return TerminalNode(service="seqmotif", parameters=parameters)
 
 
+def structure_node(structure, operator="strict_shape_match"):
+    """Creates a structure node for a structure search. You can either provide a
+    ``<entry>-<assembly>`` identifier, or a URL to a CIF or BCIF file.
+    
+    :param str structure: the structure identifier or URL.
+    :param str operator: the operator to use for the search.
+    :rtype: ``TerminalNode``"""
+
+    value = {}
+    if structure.startswith("http"):
+        is_bcif = "bcif" in structure
+        value = {"url": structure, "format": "bcif" if is_bcif else "cif"}
+    else:
+        if "-" not in structure:
+            raise ValueError("Structure must be in the format of entry-assembly")
+        entry_id, assembly_id = structure.split("-")
+        value = {"entry_id": entry_id, "assembly_id": assembly_id}
+    parameters = {
+        "value": value,
+        "operator": operator
+    }
+    return TerminalNode(service="structure", parameters=parameters)
+
+
 def get_text_parameters(key, value, text_chem=False):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes
