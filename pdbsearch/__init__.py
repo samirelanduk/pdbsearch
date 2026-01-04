@@ -141,6 +141,38 @@ def structure_node(structure, operator="strict_shape_match"):
     return TerminalNode(service="structure", parameters=parameters)
 
 
+def strucmotif_node(entry, residues, rmsd=None, exchanges=None):
+    """Creates a strucmotif node for a structure motif search. You provide a PDB
+    ID and a list of residues as tuples of (chain ID, residue number). You can
+    also provide residue exchanges, as mappings of (chain ID, residue number) to
+    a list of allowed residue names.
+    
+    :param str entry: the entry ID.
+    :param tuple residues: the residues to search for.
+    :param float rmsd: the RMSD cutoff.
+    :param dict exchanges: the exchanges to search for.
+    :rtype: ``TerminalNode``"""
+
+    parameters = {
+      "value": {
+        "entry_id": entry,
+        "residue_ids": [{
+            "label_asym_id": residue[0],
+            "label_seq_id": residue[1]
+        } for residue in residues]
+      }
+    }
+    if rmsd is not None: parameters["rmsd_cutoff"] = rmsd
+    if exchanges is not None: parameters["exchanges"] = [{
+        "residue_id": {
+            "label_asym_id": residue[0],
+            "label_seq_id": residue[1]
+        },
+        "allowed": allowed
+    } for residue, allowed in exchanges.items()]
+    return TerminalNode(service="strucmotif", parameters=parameters)
+
+
 def get_text_parameters(key, value, text_chem=False):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes

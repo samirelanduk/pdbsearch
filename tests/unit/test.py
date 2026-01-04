@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, structure_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
+from pdbsearch import full_text_node, text_node, text_chem_node, sequence_node, seqmotif_node, structure_node, strucmotif_node, search, send_request, create_request_options, get_text_parameters, SEARCH_URL
 
 class FullTextNodeTests(TestCase):
 
@@ -161,7 +161,37 @@ class StructureNodeTests(TestCase):
     
 
     
+class StrucMotifNodeTests(TestCase):
 
+    def test_can_create_strucmotif_node(self):
+        node = strucmotif_node("2mnr", residues=(("A", 162), ("A", 193), ("A", 219)))
+        self.assertEqual(node.service, "strucmotif")
+        self.assertEqual(node.parameters, {"value": {"entry_id": "2mnr", "residue_ids": [{"label_asym_id": "A", "label_seq_id": 162}, {"label_asym_id": "A", "label_seq_id": 193}, {"label_asym_id": "A", "label_seq_id": 219}]}})
+    
+
+    def test_can_create_strucmotif_node_with_rmsd(self):
+        node = strucmotif_node("2mnr", residues=(("A", 162), ("A", 193), ("A", 219)), rmsd=2)
+        self.assertEqual(node.service, "strucmotif")
+        self.assertEqual(node.parameters, {"value": {"entry_id": "2mnr", "residue_ids": [{"label_asym_id": "A", "label_seq_id": 162}, {"label_asym_id": "A", "label_seq_id": 193}, {"label_asym_id": "A", "label_seq_id": 219}]}, "rmsd_cutoff": 2})
+    
+
+    def test_can_create_strucmotif_node_with_exchanges(self):
+        node = strucmotif_node("2mnr", residues=(("A", 162), ("A", 193), ("A", 219)), exchanges={
+            ("A", 162): ["LYS", "HIS"],
+            ("A", 245): ["GLU", "ASP", "ASN"],
+            ("A", 295): ["HIS", "LYS"]
+        })
+        self.assertEqual(node.service, "strucmotif")
+        self.assertEqual(node.parameters, {
+            "value": {
+                "entry_id": "2mnr",
+                "residue_ids": [{"label_asym_id": "A", "label_seq_id": 162}, {"label_asym_id": "A", "label_seq_id": 193}, {"label_asym_id": "A", "label_seq_id": 219}]},
+                "exchanges": [{"residue_id": {"label_asym_id": "A", "label_seq_id": 162}, "allowed": ["LYS", "HIS"]}, {"residue_id": {"label_asym_id": "A", "label_seq_id": 245}, "allowed": ["GLU", "ASP", "ASN"]}, {"residue_id": {"label_asym_id": "A", "label_seq_id": 295}, "allowed": ["HIS", "LYS"]}]
+            })
+    
+
+
+    
 
 
 class GetTextParametersTests(TestCase):
