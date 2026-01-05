@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from pdbsearch.queries import search
+from pdbsearch.queries import query
 
 class QueryNode(ABC):
     """A base class for all query nodes."""
@@ -20,7 +20,7 @@ class QueryNode(ABC):
         pass
 
 
-    def search(self, return_type, return_all=False, start=None, rows=None):
+    def query(self, return_type, return_all=False, start=None, rows=None):
         """Queries the RCSB search API with this node.
 
         :param str return_type: the type of data to return.
@@ -29,7 +29,7 @@ class QueryNode(ABC):
         :param int rows: the number of results to return.
         :rtype: ``dict``"""
 
-        return search(return_type, self, return_all, start, rows)
+        return query(return_type, self, return_all, start, rows)
 
 
 

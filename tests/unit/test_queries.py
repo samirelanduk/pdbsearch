@@ -3,15 +3,15 @@ import sys
 import requests
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch.queries import search, send_request, create_request_options, SEARCH_URL
+from pdbsearch.queries import query, send_request, create_request_options, SEARCH_URL
 
-class SearchTests(TestCase):
+class QueryTests(TestCase):
 
     @patch("pdbsearch.queries.create_request_options")
     @patch("pdbsearch.queries.send_request")
     def test_minimal_search(self, mock_send_request, mock_create_request_options):
         mock_create_request_options.return_value = {}
-        result = search("entry")
+        result = query("entry")
         mock_send_request.assert_called_once_with({"return_type": "entry"})
         self.assertEqual(result, mock_send_request.return_value)
 
@@ -21,7 +21,7 @@ class SearchTests(TestCase):
     def test_can_search_with_node(self, mock_send_request, mock_create_request_options):
         mock_create_request_options.return_value = {}
         node = Mock()
-        result = search("entry", node=node)
+        result = query("entry", node=node)
         mock_send_request.assert_called_once_with({"return_type": "entry", "query": node.serialize.return_value})
         self.assertEqual(result, mock_send_request.return_value)
     
@@ -30,7 +30,7 @@ class SearchTests(TestCase):
     @patch("pdbsearch.queries.send_request")
     def test_can_search_with_options(self, mock_send_request, mock_create_request_options):
         mock_create_request_options.return_value = {"xxx": True}
-        result = search("entry", return_all=True)
+        result = query("entry", return_all=True)
         mock_send_request.assert_called_once_with({"return_type": "entry", "request_options": {"xxx": True}})
         self.assertEqual(result, mock_send_request.return_value)
 

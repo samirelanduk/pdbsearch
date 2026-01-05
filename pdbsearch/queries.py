@@ -3,7 +3,7 @@ import requests
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def search(return_type, node=None, return_all=False, start=None, rows=None):
+def query(return_type, node=None, return_all=False, start=None, rows=None):
     """Queries the RCSB search API.
 
     :param str return_type: the type of data to return.

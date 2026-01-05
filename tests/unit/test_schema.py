@@ -41,6 +41,20 @@ class FetchNamesFromRCSBSchemaTests(TestCase):
 
 class UpdateTermsFromAPITests(TestCase):
 
+    def setUp(self):
+        from pdbsearch import terms
+        self.original_terms = terms.TEXT_TERMS.copy()
+        self.original_chem_terms = terms.TEXT_CHEM_TERMS.copy()
+    
+
+    def tearDown(self):
+        from pdbsearch import terms
+        terms.TEXT_TERMS.clear()
+        terms.TEXT_TERMS.update(self.original_terms)
+        terms.TEXT_CHEM_TERMS.clear()
+        terms.TEXT_CHEM_TERMS.update(self.original_chem_terms)
+    
+
     @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
     def test_can_update_terms(self, mock_fetch_names):
         mock_fetch_names.side_effect = [{1: 2}, {3: 4}]
