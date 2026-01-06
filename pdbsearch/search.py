@@ -1,8 +1,9 @@
+import inspect
 from pdbsearch.nodes import full_text_node, text_node, text_chem_node
 from pdbsearch.nodes import sequence_node, seqmotif_node, structure_node
 from pdbsearch.nodes import strucmotif_node, chemical_node
 from pdbsearch.models import GroupNode
-from pdbsearch.queries import query
+from pdbsearch.queries import query, create_request_options
 from pdbsearch.terms import TEXT_TERMS, TEXT_CHEM_TERMS
 
 def search(return_type="entry", **kwargs):
@@ -14,12 +15,14 @@ def search(return_type="entry", **kwargs):
     :rtype: ``dict``"""
 
     nodes = get_nodes_from_kwargs(return_type, kwargs)
+    option_args = inspect.signature(create_request_options).parameters.keys()
+    query_kwargs = {k: v for k, v in kwargs.items() if k in option_args}
     if len(nodes) == 1:
-        return nodes[0].query(return_type)
+        return nodes[0].query(return_type, **query_kwargs)
     elif len(nodes) > 1:
-        return GroupNode("and", nodes).query(return_type)
+        return GroupNode("and", nodes).query(return_type, **query_kwargs)
     else:
-        return query(return_type)
+        return query(return_type, **query_kwargs)
 
 
 def search_entries(**kwargs):

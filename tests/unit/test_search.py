@@ -17,6 +17,16 @@ class SearchTests(TestCase):
     
 
     @patch("pdbsearch.search.get_nodes_from_kwargs")
+    def test_can_use_one_node_with_request_options(self, mock_get_nodes):
+        node = Mock()
+        mock_get_nodes.return_value = [node]
+        result = search("entry", term="thymidine kinase", start=10, rows=20)
+        self.assertEqual(result, node.query.return_value)
+        node.query.assert_called_once_with("entry", start=10, rows=20)
+        mock_get_nodes.assert_called_once_with("entry", {"term": "thymidine kinase", "start": 10, "rows": 20})
+    
+
+    @patch("pdbsearch.search.get_nodes_from_kwargs")
     @patch("pdbsearch.search.GroupNode")
     def test_can_use_multiple_nodes(self, mock_group_node, mock_get_nodes):
         nodes = [Mock(), Mock()]
@@ -31,6 +41,20 @@ class SearchTests(TestCase):
     
 
     @patch("pdbsearch.search.get_nodes_from_kwargs")
+    @patch("pdbsearch.search.GroupNode")
+    def test_can_use_multiple_nodes_with_request_options(self, mock_group_node, mock_get_nodes):
+        nodes = [Mock(), Mock()]
+        group_node = Mock()
+        mock_group_node.return_value = group_node
+        mock_get_nodes.return_value = nodes
+        result = search("entry", term="thymidine kinase", start=10, rows=20)
+        self.assertEqual(result, group_node.query.return_value)
+        group_node.query.assert_called_once_with("entry", start=10, rows=20)
+        mock_group_node.assert_called_once_with("and", nodes)
+        mock_get_nodes.assert_called_once_with("entry", {"term": "thymidine kinase", "start": 10, "rows": 20})
+    
+
+    @patch("pdbsearch.search.get_nodes_from_kwargs")
     @patch("pdbsearch.search.query")
     def test_can_use_no_nodes(self, mock_query, mock_get_nodes):
         mock_get_nodes.return_value = []
@@ -38,6 +62,16 @@ class SearchTests(TestCase):
         self.assertEqual(result, mock_query.return_value)
         mock_query.assert_called_once_with("entry")
         mock_get_nodes.assert_called_once_with("entry", {"term": "thymidine kinase"})
+    
+
+    @patch("pdbsearch.search.get_nodes_from_kwargs")
+    @patch("pdbsearch.search.query")
+    def test_can_use_no_nodes_with_request_options(self, mock_query, mock_get_nodes):
+        mock_get_nodes.return_value = []
+        result = search("entry", term="thymidine kinase", start=10, rows=20)
+        self.assertEqual(result, mock_query.return_value)
+        mock_query.assert_called_once_with("entry", start=10, rows=20)
+        mock_get_nodes.assert_called_once_with("entry", {"term": "thymidine kinase", "start": 10, "rows": 20})
 
 
 
