@@ -87,6 +87,15 @@ class SendRequestTests(TestCase):
         self.assertEqual(result, {"result_set": [{"identifier": 1}, {"identifier": 2}, {"identifier": 3}]})
     
 
+    def test_can_handle_204_response(self):
+        self.mock_post.return_value.status_code = 204
+        result = send_request({1: 2})
+        self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
+        self.assertEqual(result, None)
+        stderr_output = self.stderr.getvalue()
+        self.assertEqual(stderr_output, "")
+
+
     def test_can_handle_json_error_response(self):
         self.mock_post.return_value.status_code = 400
         self.mock_post.return_value.json.return_value = {"error": "Invalid request"}

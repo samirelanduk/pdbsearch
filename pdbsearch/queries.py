@@ -48,6 +48,7 @@ def send_request(query):
     response = requests.post(SEARCH_URL, json=query)
     if response.status_code == 200:
         return response.json()
+    if response.status_code == 204: return None
     try:
         print(response.json(), file=sys.stderr)
     except requests.exceptions.JSONDecodeError:
