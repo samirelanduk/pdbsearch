@@ -23,7 +23,7 @@ def query(return_type, node=None, **request_options):
     return send_request(query)
 
 
-def create_request_options(return_all=False, start=None, rows=None, sort=None, counts_only=False, content_types=None):
+def create_request_options(return_all=False, start=None, rows=None, sort=None, counts_only=False, content_types=None, facets=None):
     """Creates a request options dictionary for the RCSB search API.
     
     :param bool return_all: whether to return all results, unpaginated.
@@ -32,6 +32,7 @@ def create_request_options(return_all=False, start=None, rows=None, sort=None, c
     :param str or list[str] sort: the attribute or attributes to sort by.
     :param bool counts_only: whether to return only the count of results.
     :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     request_options = {}
@@ -50,6 +51,7 @@ def create_request_options(return_all=False, start=None, rows=None, sort=None, c
         } for attribute in ([sort] if isinstance(sort, str) else sort)]
     if counts_only: request_options["return_counts"] = True
     if content_types: request_options["results_content_type"] = content_types
+    if facets: request_options["facets"] = facets
     return request_options
 
 

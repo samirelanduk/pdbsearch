@@ -89,6 +89,11 @@ class CreateRequestOptionsTests(TestCase):
     def test_content_types(self):
         result = create_request_options(content_types=["computational"])
         self.assertEqual(result, {"results_content_type": ["computational"]})
+    
+
+    def test_facets(self):
+        result = create_request_options(facets=[1, 2, 3])
+        self.assertEqual(result, {"facets": [1, 2, 3]})
 
 
 
