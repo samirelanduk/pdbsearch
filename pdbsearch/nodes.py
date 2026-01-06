@@ -23,7 +23,7 @@ def text_node(**kwargs):
     if not kwargs: raise ValueError("At least one keyword argument is required")
     if len(kwargs) > 1: raise ValueError("Only one keyword argument is allowed")
     key, value = next(iter(kwargs.items()))
-    parameters = get_text_parameters(key, value)
+    parameters = _get_text_parameters(key, value)
     return TerminalNode(
         service="text", 
         parameters=parameters
@@ -40,7 +40,7 @@ def text_chem_node(**kwargs):
     if not kwargs: raise ValueError("At least one keyword argument is required")
     if len(kwargs) > 1: raise ValueError("Only one keyword argument is allowed")
     key, value = next(iter(kwargs.items()))
-    parameters = get_text_parameters(key, value, text_chem=True)
+    parameters = _get_text_parameters(key, value, text_chem=True)
     return TerminalNode(
         service="text_chem", 
         parameters=parameters
@@ -171,7 +171,7 @@ def chemical_node(smiles=None, inchi=None, match_type="graph-exact"):
     return TerminalNode(service="chemical", parameters=parameters)
 
 
-def get_text_parameters(key, value, text_chem=False):
+def _get_text_parameters(key, value, text_chem=False):
     """Generates the parameters dictionary for a text search, using the
     key=value passed to the ``text_node`` function. It will parse the suffixes
     to determine the operator and negation.

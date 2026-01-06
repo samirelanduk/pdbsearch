@@ -18,12 +18,12 @@ def query(return_type, node=None, **request_options):
 
     query = {"return_type": return_type}
     if node: query["query"] = node.serialize()
-    if request_options := create_request_options(**request_options):
+    if request_options := _create_request_options(**request_options):
         query["request_options"] = request_options
-    return send_request(query)
+    return _send_request(query)
 
 
-def create_request_options(return_all=False, start=None, rows=None, sort=None, counts_only=False, content_types=None, facets=None):
+def _create_request_options(return_all=False, start=None, rows=None, sort=None, counts_only=False, content_types=None, facets=None):
     """Creates a request options dictionary for the RCSB search API.
     
     :param bool return_all: whether to return all results, unpaginated.
@@ -55,7 +55,7 @@ def create_request_options(return_all=False, start=None, rows=None, sort=None, c
     return request_options
 
 
-def send_request(query):
+def _send_request(query):
     """Sends a query dictionary to the RCSB search API. If a valid response is
     received, this will be returned in JSON format. Otherwise the error message
     will be written to stderr, and an exception will be raised.

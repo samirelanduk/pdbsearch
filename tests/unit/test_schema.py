@@ -1,15 +1,15 @@
 from unittest import TestCase
 from unittest.mock import patch, call
 from pdbsearch.schema import fetch_names_from_rcsb_schema, update_terms_from_api
-from pdbsearch.schema import process_schema_object, get_attribute_names
-from pdbsearch.schema import load_cached_terms, save_cached_terms, CACHE_FILE
+from pdbsearch.schema import _process_schema_object, _get_attribute_names
+from pdbsearch.schema import _load_cached_terms, _save_cached_terms, CACHE_FILE
 from pdbsearch.schema import clear_cached_terms
 
 class FetchNamesFromRCSBSchemaTests(TestCase):
 
     @patch("requests.get")
-    @patch("pdbsearch.schema.process_schema_object")
-    @patch("pdbsearch.schema.get_attribute_names")
+    @patch("pdbsearch.schema._process_schema_object")
+    @patch("pdbsearch.schema._get_attribute_names")
     def test_can_fetch_names_from_rcsb_schema(self, mock_get_attribute_names, mock_process_schema_object, mock_get):
         names = fetch_names_from_rcsb_schema()
         self.assertEqual(names, mock_get_attribute_names.return_value)
@@ -19,8 +19,8 @@ class FetchNamesFromRCSBSchemaTests(TestCase):
     
 
     @patch("requests.get")
-    @patch("pdbsearch.schema.process_schema_object")
-    @patch("pdbsearch.schema.get_attribute_names")
+    @patch("pdbsearch.schema._process_schema_object")
+    @patch("pdbsearch.schema._get_attribute_names")
     def test_can_fetch_names_from_rcsb_schema_with_timeout(self, mock_get_attribute_names, mock_process_schema_object, mock_get):
         names = fetch_names_from_rcsb_schema(timeout=100)
         self.assertEqual(names, mock_get_attribute_names.return_value)
@@ -30,8 +30,8 @@ class FetchNamesFromRCSBSchemaTests(TestCase):
     
 
     @patch("requests.get")
-    @patch("pdbsearch.schema.process_schema_object")
-    @patch("pdbsearch.schema.get_attribute_names")
+    @patch("pdbsearch.schema._process_schema_object")
+    @patch("pdbsearch.schema._get_attribute_names")
     def test_can_fetch_chemical_names_from_rcsb_schema(self, mock_get_attribute_names, mock_process_schema_object, mock_get):
         names = fetch_names_from_rcsb_schema(chemical=True)
         self.assertEqual(names, mock_get_attribute_names.return_value)
@@ -57,8 +57,8 @@ class UpdateTermsFromAPITests(TestCase):
         terms.TEXT_CHEM_TERMS.update(self.original_chem_terms)
 
 
-    @patch("pdbsearch.schema.save_cached_terms")
-    @patch("pdbsearch.schema.load_cached_terms")
+    @patch("pdbsearch.schema._save_cached_terms")
+    @patch("pdbsearch.schema._load_cached_terms")
     @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
     def test_can_update_terms_from_api(self, mock_fetch_names, mock_load_cache, mock_save_cache):
         mock_load_cache.return_value = None
@@ -74,7 +74,7 @@ class UpdateTermsFromAPITests(TestCase):
         mock_save_cache.assert_called_once_with({1: 2}, {3: 4})
 
 
-    @patch("pdbsearch.schema.load_cached_terms")
+    @patch("pdbsearch.schema._load_cached_terms")
     def test_can_update_terms_from_cache(self, mock_load_cache):
         mock_load_cache.return_value = {
             "text_terms": {5: 6},
@@ -87,7 +87,7 @@ class UpdateTermsFromAPITests(TestCase):
 
 
     @patch("builtins.open", side_effect=FileNotFoundError)
-    @patch("pdbsearch.schema.load_cached_terms")
+    @patch("pdbsearch.schema._load_cached_terms")
     @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
     def test_can_fail_silently(self, mock_fetch_names, mock_load_cache, mock_open):
         mock_load_cache.return_value = None
@@ -111,7 +111,7 @@ class LoadCachedTermsTests(TestCase):
             "text_terms": {1: 2},
             "chem_terms": {3: 4}
         }
-        result = load_cached_terms()
+        result = _load_cached_terms()
         self.assertEqual(result["text_terms"], {1: 2})
         self.assertEqual(result["chem_terms"], {3: 4})
         mock_json_load.assert_called_once_with(mock_open.return_value.__enter__.return_value)
@@ -128,7 +128,7 @@ class LoadCachedTermsTests(TestCase):
             "text_terms": {1: 2},
             "chem_terms": {3: 4}
         }
-        result = load_cached_terms()
+        result = _load_cached_terms()
         self.assertIsNone(result)
         mock_json_load.assert_called_once_with(mock_open.return_value.__enter__.return_value)
         mock_open.assert_called_once_with(CACHE_FILE)
@@ -136,7 +136,7 @@ class LoadCachedTermsTests(TestCase):
 
     @patch("builtins.open", side_effect=FileNotFoundError)
     def test_returns_none_for_missing_cache(self, mock_open):
-        result = load_cached_terms()
+        result = _load_cached_terms()
         self.assertIsNone(result)
         mock_open.assert_called_once_with(CACHE_FILE)
 
@@ -149,7 +149,7 @@ class SaveCachedTermsTests(TestCase):
     @patch("pdbsearch.schema.json.dump")
     def test_can_save_cache(self, mock_json_dump, mock_open, mock_time):
         mock_time.return_value = 12345
-        save_cached_terms({1: 2}, {3: 4})
+        _save_cached_terms({1: 2}, {3: 4})
         mock_open.assert_called_once_with(CACHE_FILE, "w")
         mock_json_dump.assert_called_once_with({
             "timestamp": 12345,
@@ -160,7 +160,7 @@ class SaveCachedTermsTests(TestCase):
 
     @patch("builtins.open", side_effect=PermissionError)
     def test_fails_silently_on_write_error(self, mock_open):
-        save_cached_terms({1: 2}, {3: 4})
+        _save_cached_terms({1: 2}, {3: 4})
         mock_open.assert_called_once_with(CACHE_FILE, "w")
 
 
@@ -182,7 +182,7 @@ class ClearCachedTermsTests(TestCase):
 
 class ProcessSchemaObjectTests(TestCase):
 
-    def test_can_process_schema_object(self):
+    def test_can__process_schema_object(self):
         schema = {
             "type": "object",
             "properties": {
@@ -229,7 +229,7 @@ class ProcessSchemaObjectTests(TestCase):
                 }
             }
         }
-        self.assertEqual(process_schema_object(schema), {
+        self.assertEqual(_process_schema_object(schema), {
             "key1": {
                 "type": "string",
                 "description": "Description of key1",
@@ -264,7 +264,7 @@ class ProcessSchemaObjectTests(TestCase):
 
 class AttributeNamesTests(TestCase):
 
-    def test_can_get_attribute_names(self):
+    def test_can__get_attribute_names(self):
         schema = {
             "key1": {"is_terminal": True, "search": [1, 2]},
             "key2": {
@@ -277,7 +277,7 @@ class AttributeNamesTests(TestCase):
             },
             "key3": {"is_terminal": True, "search": [11, 12]}
         }
-        self.assertEqual(get_attribute_names(schema), {
+        self.assertEqual(_get_attribute_names(schema), {
             "key1": [1, 2],
             "key2.key21": [3, 4],
             "key2.key22": [5, 6],

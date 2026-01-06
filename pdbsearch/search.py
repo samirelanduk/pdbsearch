@@ -3,7 +3,7 @@ from pdbsearch.nodes import full_text_node, text_node, text_chem_node
 from pdbsearch.nodes import sequence_node, seqmotif_node, structure_node
 from pdbsearch.nodes import strucmotif_node, chemical_node
 from pdbsearch.models import GroupNode
-from pdbsearch.queries import query, create_request_options
+from pdbsearch.queries import query, _create_request_options
 from pdbsearch.terms import TEXT_TERMS, TEXT_CHEM_TERMS
 
 def search(return_type="entry", **kwargs):
@@ -14,8 +14,8 @@ def search(return_type="entry", **kwargs):
     :param kwargs: the parameters to use for the search.
     :rtype: ``dict``"""
 
-    nodes = get_nodes_from_kwargs(return_type, kwargs)
-    option_args = inspect.signature(create_request_options).parameters.keys()
+    nodes = _get_nodes_from_kwargs(return_type, kwargs)
+    option_args = inspect.signature(_create_request_options).parameters.keys()
     query_kwargs = {k: v for k, v in kwargs.items() if k in option_args}
     if len(nodes) == 1:
         return nodes[0].query(return_type, **query_kwargs)
@@ -81,7 +81,7 @@ def search_mols(**kwargs):
     return search("mol_definition", **kwargs)
 
 
-def get_nodes_from_kwargs(return_type, kwargs):
+def _get_nodes_from_kwargs(return_type, kwargs):
     """Generates nodes from the keyword arguments passed to the search function.
 
     In some cases it will need to make educated guesses about which service is

@@ -3,12 +3,12 @@ import sys
 import requests
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from pdbsearch.queries import query, send_request, create_request_options, SEARCH_URL
+from pdbsearch.queries import query, _send_request, _create_request_options, SEARCH_URL
 
 class QueryTests(TestCase):
 
-    @patch("pdbsearch.queries.create_request_options")
-    @patch("pdbsearch.queries.send_request")
+    @patch("pdbsearch.queries._create_request_options")
+    @patch("pdbsearch.queries._send_request")
     def test_minimal_search(self, mock_send_request, mock_create_request_options):
         mock_create_request_options.return_value = {}
         result = query("entry")
@@ -16,8 +16,8 @@ class QueryTests(TestCase):
         self.assertEqual(result, mock_send_request.return_value)
 
 
-    @patch("pdbsearch.queries.create_request_options")
-    @patch("pdbsearch.queries.send_request")
+    @patch("pdbsearch.queries._create_request_options")
+    @patch("pdbsearch.queries._send_request")
     def test_can_search_with_node(self, mock_send_request, mock_create_request_options):
         mock_create_request_options.return_value = {}
         node = Mock()
@@ -26,8 +26,8 @@ class QueryTests(TestCase):
         self.assertEqual(result, mock_send_request.return_value)
     
 
-    @patch("pdbsearch.queries.create_request_options")
-    @patch("pdbsearch.queries.send_request")
+    @patch("pdbsearch.queries._create_request_options")
+    @patch("pdbsearch.queries._send_request")
     def test_can_search_with_options(self, mock_send_request, mock_create_request_options):
         mock_create_request_options.return_value = {"xxx": True}
         result = query("entry", return_all=True)
@@ -39,42 +39,42 @@ class QueryTests(TestCase):
 class CreateRequestOptionsTests(TestCase):
 
     def test_can_return_empty_options(self):
-        result = create_request_options()
+        result = _create_request_options()
         self.assertEqual(result, {})
     
 
     def test_return_all_options(self):
-        result = create_request_options(return_all=True)
+        result = _create_request_options(return_all=True)
         self.assertEqual(result, {"return_all_hits": True})
 
 
     def test_start(self):
-        result = create_request_options(start=10)
+        result = _create_request_options(start=10)
         self.assertEqual(result, {"paginate": {"start": 10}})
 
 
     def test_rows(self):
-        result = create_request_options(rows=10)
+        result = _create_request_options(rows=10)
         self.assertEqual(result, {"paginate": {"rows": 10}})
 
 
     def test_start_and_rows(self):
-        result = create_request_options(start=10, rows=5)
+        result = _create_request_options(start=10, rows=5)
         self.assertEqual(result, {"paginate": {"start": 10, "rows": 5}})
     
 
     def test_single_sort_attribute(self):
-        result = create_request_options(sort="rcsb_accession_info.initial_release_date")
+        result = _create_request_options(sort="rcsb_accession_info.initial_release_date")
         self.assertEqual(result, {"sort": [{"sort_by": "rcsb_accession_info.initial_release_date", "direction": "asc"}]})
     
 
     def test_reverse_sort_attribute(self):
-        result = create_request_options(sort="-rcsb_accession_info.initial_release_date")
+        result = _create_request_options(sort="-rcsb_accession_info.initial_release_date")
         self.assertEqual(result, {"sort": [{"sort_by": "rcsb_accession_info.initial_release_date", "direction": "desc"}]})
     
 
     def test_multiple_sort_attributes(self):
-        result = create_request_options(sort=["-rcsb_accession_info.initial_release_date", "rcsb_accession_info__deposit_date"])
+        result = _create_request_options(sort=["-rcsb_accession_info.initial_release_date", "rcsb_accession_info__deposit_date"])
         self.assertEqual(result, {"sort": [
             {"sort_by": "rcsb_accession_info.initial_release_date", "direction": "desc"},
             {"sort_by": "rcsb_accession_info.deposit_date", "direction": "asc"}
@@ -82,17 +82,17 @@ class CreateRequestOptionsTests(TestCase):
     
 
     def test_counts_only(self):
-        result = create_request_options(counts_only=True)
+        result = _create_request_options(counts_only=True)
         self.assertEqual(result, {"return_counts": True})
     
 
     def test_content_types(self):
-        result = create_request_options(content_types=["computational"])
+        result = _create_request_options(content_types=["computational"])
         self.assertEqual(result, {"results_content_type": ["computational"]})
     
 
     def test_facets(self):
-        result = create_request_options(facets=[1, 2, 3])
+        result = _create_request_options(facets=[1, 2, 3])
         self.assertEqual(result, {"facets": [1, 2, 3]})
 
 
@@ -115,14 +115,14 @@ class SendRequestTests(TestCase):
     
 
     def test_can_send_request(self):
-        result = send_request({1: 2})
+        result = _send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
         self.assertEqual(result, {"result_set": [{"identifier": 1}, {"identifier": 2}, {"identifier": 3}]})
     
 
     def test_can_handle_204_response(self):
         self.mock_post.return_value.status_code = 204
-        result = send_request({1: 2})
+        result = _send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
         self.assertEqual(result, None)
         stderr_output = self.stderr.getvalue()
@@ -132,7 +132,7 @@ class SendRequestTests(TestCase):
     def test_can_handle_json_error_response(self):
         self.mock_post.return_value.status_code = 400
         self.mock_post.return_value.json.return_value = {"error": "Invalid request"}
-        send_request({1: 2})
+        _send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
         stderr_output = self.stderr.getvalue()
         self.assertEqual(stderr_output, "{'error': 'Invalid request'}\n")
@@ -142,7 +142,7 @@ class SendRequestTests(TestCase):
         self.mock_post.return_value.status_code = 400
         self.mock_post.return_value.json.side_effect = requests.exceptions.JSONDecodeError("", "", 0)
         self.mock_post.return_value.content = b"Invalid request"
-        send_request({1: 2})
+        _send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
         stderr_output = self.stderr.getvalue()
         self.assertEqual(stderr_output, "400 Invalid request\n")
@@ -152,7 +152,7 @@ class SendRequestTests(TestCase):
         self.mock_post.return_value.status_code = 400
         self.mock_post.return_value.json.side_effect = requests.exceptions.JSONDecodeError("", "", 0)
         self.mock_post.return_value.content = b"X" * 101
-        send_request({1: 2})
+        _send_request({1: 2})
         self.mock_post.assert_called_once_with(SEARCH_URL, json={1: 2})
         stderr_output = self.stderr.getvalue()
         self.assertEqual(stderr_output, "400 \n")

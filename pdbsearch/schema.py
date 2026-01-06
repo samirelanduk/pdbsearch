@@ -19,8 +19,8 @@ def fetch_names_from_rcsb_schema(chemical=False, timeout=None):
     chem_text_url = "https://search.rcsb.org/rcsbsearch/v2/metadata/chemical/schema"
     url = chem_text_url if chemical else text_url
     data = requests.get(url, timeout=timeout).json()
-    processed = process_schema_object(data)
-    return get_attribute_names(processed)
+    processed = _process_schema_object(data)
+    return _get_attribute_names(processed)
 
 
 def update_terms_from_api():
@@ -34,7 +34,7 @@ def update_terms_from_api():
     :rtype: ``bool``"""
 
     from pdbsearch import terms
-    cache = load_cached_terms()
+    cache = _load_cached_terms()
     if cache:
         terms.TEXT_TERMS.clear()
         terms.TEXT_TERMS.update(cache["text_terms"])
@@ -52,13 +52,22 @@ def update_terms_from_api():
         terms.TEXT_TERMS.update(new_text_terms)
         terms.TEXT_CHEM_TERMS.clear()
         terms.TEXT_CHEM_TERMS.update(new_chem_terms)
-        save_cached_terms(new_text_terms, new_chem_terms)
+        _save_cached_terms(new_text_terms, new_chem_terms)
         return True
     except Exception:
         return False
 
 
-def load_cached_terms():
+def clear_cached_terms():
+    """Clears the cached terms."""
+
+    try:
+        os.remove(CACHE_FILE)
+    except Exception:
+        pass
+
+
+def _load_cached_terms():
     """Loads cached terms from the cache file if it exists and is not expired.
 
     :rtype: ``dict`` or ``None``"""
@@ -73,7 +82,7 @@ def load_cached_terms():
     return None
 
 
-def save_cached_terms(text_terms, chem_terms):
+def _save_cached_terms(text_terms, chem_terms):
     """Saves terms to the cache file with a timestamp.
 
     :param text_terms: The text terms dictionary.
@@ -91,27 +100,18 @@ def save_cached_terms(text_terms, chem_terms):
         pass
 
 
-def clear_cached_terms():
-    """Clears the cached terms."""
-
-    try:
-        os.remove(CACHE_FILE)
-    except Exception:
-        pass
-
-
-def process_schema_object(obj):
+def _process_schema_object(obj):
     """Strips down the schema object to get just the key attributes, with the
     same structure and nesting as the original object.
 
     :param obj: The schema object to process.
     :rtype: ``dict``"""
 
-    if obj.get("type") == "array": return process_schema_object(obj["items"])
+    if obj.get("type") == "array": return _process_schema_object(obj["items"])
     if obj.get("type") == "object":
         o = {}
         for key, value in obj["properties"].items():
-            if processed := process_schema_object(value): o[key] = processed
+            if processed := _process_schema_object(value): o[key] = processed
         return o
     if search := obj.get("rcsb_search_context"):
         return {
@@ -122,8 +122,8 @@ def process_schema_object(obj):
         }
 
 
-def get_attribute_names(obj, prefix=""):
-    """Takes the processed schema object returned by ``process_schema_object``,
+def _get_attribute_names(obj, prefix=""):
+    """Takes the processed schema object returned by ``_process_schema_object``,
     and creates a mapping of API attribute names to their search contexts.
 
     :param obj: The processed schema object.
@@ -136,5 +136,5 @@ def get_attribute_names(obj, prefix=""):
         if v.get("is_terminal"):
             names[value] = v["search"]
         else:
-            names.update(get_attribute_names(v, prefix=value))
+            names.update(_get_attribute_names(v, prefix=value))
     return names
