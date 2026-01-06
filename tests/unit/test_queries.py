@@ -79,6 +79,11 @@ class CreateRequestOptionsTests(TestCase):
             {"sort_by": "rcsb_accession_info.initial_release_date", "direction": "desc"},
             {"sort_by": "rcsb_accession_info.deposit_date", "direction": "asc"}
         ]})
+    
+
+    def test_counts_only(self):
+        result = create_request_options(counts_only=True)
+        self.assertEqual(result, {"return_counts": True})
 
 
 
