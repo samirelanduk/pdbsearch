@@ -84,6 +84,11 @@ class CreateRequestOptionsTests(TestCase):
     def test_counts_only(self):
         result = create_request_options(counts_only=True)
         self.assertEqual(result, {"return_counts": True})
+    
+
+    def test_content_types(self):
+        result = create_request_options(content_types=["computational"])
+        self.assertEqual(result, {"results_content_type": ["computational"]})
 
 
 
