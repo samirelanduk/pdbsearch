@@ -1,6 +1,11 @@
+import json
+import os
+import time
 import requests
 
 SCHEMA_FETCH_TIMEOUT = 2
+CACHE_EXPIRY_SECONDS = 86400  # 24 hours
+CACHE_FILE = os.path.join(os.path.dirname(__file__), ".terms_cache.json")
 
 def fetch_names_from_rcsb_schema(chemical=False, timeout=None):
     """Fetches the schema description object for either the text or text_chem
@@ -19,16 +24,24 @@ def fetch_names_from_rcsb_schema(chemical=False, timeout=None):
 
 
 def update_terms_from_api():
-    """Attempts to fetch the latest terms from the RCSB API and update the
-    hardcoded terms in the terms module. This function is called at import time
-    and fails silently if the API is unreachable or returns invalid data.
+    """Attempts to update the terms in the terms module, using cached values if
+    available and not expired, otherwise fetching from the RCSB API. This
+    function is called at import time and fails silently if the API is
+    unreachable or returns invalid data.
 
     Returns ``True`` if both schemas were updated, ``False`` otherwise.
-    
+
     :rtype: ``bool``"""
-    
+
+    from pdbsearch import terms
+    cache = load_cached_terms()
+    if cache:
+        terms.TEXT_TERMS.clear()
+        terms.TEXT_TERMS.update(cache["text_terms"])
+        terms.TEXT_CHEM_TERMS.clear()
+        terms.TEXT_CHEM_TERMS.update(cache["chem_terms"])
+        return True
     try:
-        from pdbsearch import terms
         new_text_terms = fetch_names_from_rcsb_schema(
             chemical=False, timeout=SCHEMA_FETCH_TIMEOUT
         )
@@ -39,9 +52,52 @@ def update_terms_from_api():
         terms.TEXT_TERMS.update(new_text_terms)
         terms.TEXT_CHEM_TERMS.clear()
         terms.TEXT_CHEM_TERMS.update(new_chem_terms)
+        save_cached_terms(new_text_terms, new_chem_terms)
         return True
     except Exception:
         return False
+
+
+def load_cached_terms():
+    """Loads cached terms from the cache file if it exists and is not expired.
+
+    :rtype: ``dict`` or ``None``"""
+
+    try:
+        with open(CACHE_FILE) as f:
+            cache = json.load(f)
+        if time.time() - cache.get("timestamp", 0) < CACHE_EXPIRY_SECONDS:
+            return cache
+    except Exception:
+        pass
+    return None
+
+
+def save_cached_terms(text_terms, chem_terms):
+    """Saves terms to the cache file with a timestamp.
+
+    :param text_terms: The text terms dictionary.
+    :param chem_terms: The chemical terms dictionary."""
+
+    try:
+        cache = {
+            "timestamp": time.time(),
+            "text_terms": text_terms,
+            "chem_terms": chem_terms,
+        }
+        with open(CACHE_FILE, "w") as f:
+            json.dump(cache, f)
+    except Exception:
+        pass
+
+
+def clear_cached_terms():
+    """Clears the cached terms."""
+
+    try:
+        os.remove(CACHE_FILE)
+    except Exception:
+        pass
 
 
 def process_schema_object(obj):

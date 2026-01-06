@@ -2,6 +2,8 @@ from unittest import TestCase
 from unittest.mock import patch, call
 from pdbsearch.schema import fetch_names_from_rcsb_schema, update_terms_from_api
 from pdbsearch.schema import process_schema_object, get_attribute_names
+from pdbsearch.schema import load_cached_terms, save_cached_terms, CACHE_FILE
+from pdbsearch.schema import clear_cached_terms
 
 class FetchNamesFromRCSBSchemaTests(TestCase):
 
@@ -45,7 +47,7 @@ class UpdateTermsFromAPITests(TestCase):
         from pdbsearch import terms
         self.original_terms = terms.TEXT_TERMS.copy()
         self.original_chem_terms = terms.TEXT_CHEM_TERMS.copy()
-    
+
 
     def tearDown(self):
         from pdbsearch import terms
@@ -53,10 +55,13 @@ class UpdateTermsFromAPITests(TestCase):
         terms.TEXT_TERMS.update(self.original_terms)
         terms.TEXT_CHEM_TERMS.clear()
         terms.TEXT_CHEM_TERMS.update(self.original_chem_terms)
-    
 
+
+    @patch("pdbsearch.schema.save_cached_terms")
+    @patch("pdbsearch.schema.load_cached_terms")
     @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
-    def test_can_update_terms(self, mock_fetch_names):
+    def test_can_update_terms_from_api(self, mock_fetch_names, mock_load_cache, mock_save_cache):
+        mock_load_cache.return_value = None
         mock_fetch_names.side_effect = [{1: 2}, {3: 4}]
         self.assertTrue(update_terms_from_api())
         from pdbsearch import terms
@@ -66,15 +71,112 @@ class UpdateTermsFromAPITests(TestCase):
             call(chemical=False, timeout=2),
             call(chemical=True, timeout=2)
         ])
-    
+        mock_save_cache.assert_called_once_with({1: 2}, {3: 4})
 
+
+    @patch("pdbsearch.schema.load_cached_terms")
+    def test_can_update_terms_from_cache(self, mock_load_cache):
+        mock_load_cache.return_value = {
+            "text_terms": {5: 6},
+            "chem_terms": {7: 8}
+        }
+        self.assertTrue(update_terms_from_api())
+        from pdbsearch import terms
+        self.assertEqual(terms.TEXT_TERMS, {5: 6})
+        self.assertEqual(terms.TEXT_CHEM_TERMS, {7: 8})
+
+
+    @patch("builtins.open", side_effect=FileNotFoundError)
+    @patch("pdbsearch.schema.load_cached_terms")
     @patch("pdbsearch.schema.fetch_names_from_rcsb_schema")
-    def test_can_fail_silently(self, mock_fetch_names):
+    def test_can_fail_silently(self, mock_fetch_names, mock_load_cache, mock_open):
+        mock_load_cache.return_value = None
         mock_fetch_names.side_effect = [{1: 2}, ValueError]
         self.assertFalse(update_terms_from_api())
         from pdbsearch import terms
         self.assertIn("drugbank_target.name", terms.TEXT_TERMS)
         self.assertIn("drugbank_target.name", terms.TEXT_CHEM_TERMS)
+
+
+
+class LoadCachedTermsTests(TestCase):
+
+    @patch("pdbsearch.schema.time.time")
+    @patch("builtins.open")
+    @patch("pdbsearch.schema.json.load")
+    def test_can_load_valid_cache(self, mock_json_load, mock_open, mock_time):
+        mock_time.return_value = 1000
+        mock_json_load.return_value = {
+            "timestamp": 900,  # 100 seconds ago, within 24 hour expiry
+            "text_terms": {1: 2},
+            "chem_terms": {3: 4}
+        }
+        result = load_cached_terms()
+        self.assertEqual(result["text_terms"], {1: 2})
+        self.assertEqual(result["chem_terms"], {3: 4})
+        mock_json_load.assert_called_once_with(mock_open.return_value.__enter__.return_value)
+        mock_open.assert_called_once_with(CACHE_FILE)
+
+
+    @patch("pdbsearch.schema.time.time")
+    @patch("builtins.open")
+    @patch("pdbsearch.schema.json.load")
+    def test_returns_none_for_expired_cache(self, mock_json_load, mock_open, mock_time):
+        mock_time.return_value = 100000
+        mock_json_load.return_value = {
+            "timestamp": 0,
+            "text_terms": {1: 2},
+            "chem_terms": {3: 4}
+        }
+        result = load_cached_terms()
+        self.assertIsNone(result)
+        mock_json_load.assert_called_once_with(mock_open.return_value.__enter__.return_value)
+        mock_open.assert_called_once_with(CACHE_FILE)
+
+
+    @patch("builtins.open", side_effect=FileNotFoundError)
+    def test_returns_none_for_missing_cache(self, mock_open):
+        result = load_cached_terms()
+        self.assertIsNone(result)
+        mock_open.assert_called_once_with(CACHE_FILE)
+
+
+
+class SaveCachedTermsTests(TestCase):
+
+    @patch("pdbsearch.schema.time.time")
+    @patch("builtins.open")
+    @patch("pdbsearch.schema.json.dump")
+    def test_can_save_cache(self, mock_json_dump, mock_open, mock_time):
+        mock_time.return_value = 12345
+        save_cached_terms({1: 2}, {3: 4})
+        mock_open.assert_called_once_with(CACHE_FILE, "w")
+        mock_json_dump.assert_called_once_with({
+            "timestamp": 12345,
+            "text_terms": {1: 2},
+            "chem_terms": {3: 4}
+        }, mock_open.return_value.__enter__.return_value)
+
+
+    @patch("builtins.open", side_effect=PermissionError)
+    def test_fails_silently_on_write_error(self, mock_open):
+        save_cached_terms({1: 2}, {3: 4})
+        mock_open.assert_called_once_with(CACHE_FILE, "w")
+
+
+
+class ClearCachedTermsTests(TestCase):
+
+    @patch("pdbsearch.schema.os.remove")
+    def test_can_clear_cache(self, mock_os_remove):
+        clear_cached_terms()
+        mock_os_remove.assert_called_once_with(CACHE_FILE)
+    
+
+    @patch("pdbsearch.schema.os.remove", side_effect=PermissionError)
+    def test_fails_silently_on_remove_error(self, mock_os_remove):
+        clear_cached_terms()
+        mock_os_remove.assert_called_once_with(CACHE_FILE)
 
 
 
