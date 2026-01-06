@@ -10,8 +10,30 @@ def search(return_type="entry", **kwargs):
     """Searches the RCSB API with multiple nodes, based on the parameters given.
     Any nodes created will be combined using an "and" operator.
 
+    :param str term: the search term for full text search.
+    :param str protein: a protein sequence or pattern.
+    :param str dna: a DNA sequence or pattern.
+    :param str rna: an RNA sequence or pattern.
+    :param float identity: the identity cutoff for sequence search.
+    :param float evalue: the evalue cutoff for sequence search.
+    :param str pattern_type: the type of pattern for sequence motif search.
+    :param str structure: a structure identifier for structure search.
+    :param str operator: the operator for structure search.
+    :param str entry: a PDB entry identifier for structure motif search.
+    :param tuple residues: a tuple of residue numbers for structure motif search.
+    :param float rmsd: the RMSD cutoff for structure motif search.
+    :param dict exchanges: a dictionary of residue exchanges for structure motif search.
+    :param str smiles: a SMILES string for chemical search.
+    :param str inchi: an InChI string for chemical search.
+    :param str match_type: the type of match for chemical search.
     :param str return_type: the type of data to return.
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     nodes = _get_nodes_from_kwargs(return_type, kwargs)
@@ -28,7 +50,13 @@ def search(return_type="entry", **kwargs):
 def search_entries(**kwargs):
     """Searches the RCSB API for entries, based on the parameters given.
 
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     return search("entry", **kwargs)
@@ -37,7 +65,13 @@ def search_entries(**kwargs):
 def search_polymer_entities(**kwargs):
     """Searches the RCSB API for polymer entities, based on the parameters given.
 
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     return search("polymer_entity", **kwargs)
@@ -46,7 +80,13 @@ def search_polymer_entities(**kwargs):
 def search_non_polymer_entities(**kwargs):
     """Searches the RCSB API for non-polymer entities, based on the parameters given.
 
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     return search("non_polymer_entity", **kwargs)
@@ -56,7 +96,13 @@ def search_polymers(**kwargs):
     """Searches the RCSB API for polymer instances, based on the parameters
     given.
 
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     return search("polymer_instance", **kwargs)
@@ -65,7 +111,13 @@ def search_polymers(**kwargs):
 def search_assemblies(**kwargs):
     """Searches the RCSB API for assemblies, based on the parameters given.
 
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     return search("assembly", **kwargs)
@@ -75,7 +127,13 @@ def search_mols(**kwargs):
     """Searches the RCSB API for chemical structures, based on the parameters
     given.
 
-    :param kwargs: the parameters to use for the search.
+    :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
+    :param bool counts_only: whether to return only the count of results.
+    :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     return search("mol_definition", **kwargs)

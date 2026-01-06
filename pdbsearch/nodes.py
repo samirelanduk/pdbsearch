@@ -17,7 +17,6 @@ def text_node(**kwargs):
     """Creates a text node for some search term. Only one key=value pair can be
     provided, and it must correspond to a valid term in the schema.
 
-    :param kwargs: the key=value pairs to create the node from.
     :rtype: ``TerminalNode``"""
 
     if not kwargs: raise ValueError("At least one keyword argument is required")
@@ -34,7 +33,6 @@ def text_chem_node(**kwargs):
     """Creates a chem_text node for some search term. Only one key=value pair
     can be provided, and it must correspond to a valid term in the schema.
 
-    :param kwargs: the key=value pairs to create the node from.
     :rtype: ``TerminalNode``"""
 
     if not kwargs: raise ValueError("At least one keyword argument is required")
@@ -196,6 +194,7 @@ def _get_text_parameters(key, value, text_chem=False):
     
     :param str key: the key of the term.
     :param value: the value of the term.
+    :param bool text_chem: whether to use the chemical text terms.
     :rtype: ``dict``"""
 
     terms = TEXT_CHEM_TERMS if text_chem else TEXT_TERMS

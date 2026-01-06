@@ -20,16 +20,20 @@ class QueryNode(ABC):
         pass
 
 
-    def query(self, return_type, return_all=False, start=None, rows=None):
+    def query(self, return_type, **request_options):
         """Queries the RCSB search API with this node.
 
         :param str return_type: the type of data to return.
         :param bool return_all: whether to return all results, unpaginated.
         :param int start: the start index of the results.
         :param int rows: the number of results to return.
+        :param str or list[str] sort: the attribute or attributes to sort by.
+        :param bool counts_only: whether to return only the count of results.
+        :param list[str] content_types: the PDB types (experimental/computational).
+        :param list[str] facets: RCSB aggregation terms.
         :rtype: ``dict``"""
 
-        return query(return_type, self, return_all, start, rows)
+        return query(return_type, self, **request_options)
 
 
 
@@ -46,6 +50,7 @@ class TerminalNode(QueryNode):
     def serialize(self):
         """Creates the JSON-serializable representation of the node.
         
+        :param QueryNode node: the node to combine with.
         :rtype: ``dict``"""
 
         return {
@@ -59,6 +64,7 @@ class TerminalNode(QueryNode):
         """Combines this terminal node with another node using the AND logical
         operator, to create a new group node.
         
+        :param QueryNode node: the node to combine with.
         :rtype: ``GroupNode``"""
 
         if isinstance(node, GroupNode) and node.logical_operator == "and":
@@ -70,6 +76,7 @@ class TerminalNode(QueryNode):
         """Combines this terminal node with another node using the OR logical
         operator, to create a new group node.
         
+        :param QueryNode node: the node to combine with.
         :rtype: ``GroupNode``"""
 
         if isinstance(node, GroupNode) and node.logical_operator == "or":
@@ -104,7 +111,8 @@ class GroupNode(QueryNode):
     def and_(self, node):
         """Combines this group node with another node using the AND logical
         operator, to create a new group node.
-        
+
+        :param QueryNode node: the node to combine with.
         :rtype: ``GroupNode``"""
 
         if isinstance(node, TerminalNode):
@@ -121,6 +129,7 @@ class GroupNode(QueryNode):
         """Combines this group node with another node using the OR logical
         operator, to create a new group node.
         
+        :param QueryNode node: the node to combine with.
         :rtype: ``GroupNode``"""
 
         if isinstance(node, TerminalNode):

@@ -90,11 +90,11 @@ class TerminalNodeQueryTests(TestCase):
     def test_can_search(self, mock_search):
         node = TerminalNode("text", {"key": "value"})
         node.query("entry")
-        mock_search.assert_called_once_with("entry", node, False, None, None)
+        mock_search.assert_called_once_with("entry", node)
     
 
     @patch("pdbsearch.models.query")
     def test_can_search_with_options(self, mock_search):
         node = TerminalNode("text", {"key": "value"})
         node.query("entry", return_all=True, start=10, rows=20)
-        mock_search.assert_called_once_with("entry", node, True, 10, 20)
+        mock_search.assert_called_once_with("entry", node, return_all=True, start=10, rows=20)

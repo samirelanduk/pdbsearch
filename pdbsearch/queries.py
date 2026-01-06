@@ -14,6 +14,7 @@ def query(return_type, node=None, **request_options):
     :param str or list[str] sort: the attribute or attributes to sort by.
     :param bool counts_only: whether to return only the count of results.
     :param list[str] content_types: the PDB types (experimental/computational).
+    :param list[str] facets: RCSB aggregation terms.
     :rtype: ``dict``"""
 
     query = {"return_type": return_type}
