@@ -3,26 +3,30 @@ import requests
 
 SEARCH_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
-def query(return_type, node=None, return_all=False, start=None, rows=None):
+def query(return_type, node=None, return_all=False, start=None, rows=None, sort=None):
     """Queries the RCSB search API.
 
     :param str return_type: the type of data to return.
     :param bool return_all: whether to return all results, unpaginated.
+    :param int start: the start index of the results.
+    :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
     :rtype: ``dict``"""
 
     query = {"return_type": return_type}
     if node: query["query"] = node.serialize()
-    if request_options := create_request_options(return_all, start, rows):
+    if request_options := create_request_options(return_all, start, rows, sort):
         query["request_options"] = request_options
     return send_request(query)
 
 
-def create_request_options(return_all=False, start=None, rows=None):
+def create_request_options(return_all=False, start=None, rows=None, sort=None):
     """Creates a request options dictionary for the RCSB search API.
     
     :param bool return_all: whether to return all results, unpaginated.
     :param int start: the start index of the results.
     :param int rows: the number of results to return.
+    :param str or list[str] sort: the attribute or attributes to sort by.
     :rtype: ``dict``"""
 
     request_options = {}
@@ -34,6 +38,11 @@ def create_request_options(return_all=False, start=None, rows=None):
             request_options["paginate"]["start"] = start
         if rows is not None:
             request_options["paginate"]["rows"] = rows
+    if sort:
+        request_options["sort"] = [{
+            "sort_by": attribute.replace("__", ".").lstrip("-"),
+            "direction": "desc" if attribute.startswith("-") else "asc"
+        } for attribute in ([sort] if isinstance(sort, str) else sort)]
     return request_options
 
 

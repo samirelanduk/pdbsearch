@@ -61,6 +61,24 @@ class CreateRequestOptionsTests(TestCase):
     def test_start_and_rows(self):
         result = create_request_options(start=10, rows=5)
         self.assertEqual(result, {"paginate": {"start": 10, "rows": 5}})
+    
+
+    def test_single_sort_attribute(self):
+        result = create_request_options(sort="rcsb_accession_info.initial_release_date")
+        self.assertEqual(result, {"sort": [{"sort_by": "rcsb_accession_info.initial_release_date", "direction": "asc"}]})
+    
+
+    def test_reverse_sort_attribute(self):
+        result = create_request_options(sort="-rcsb_accession_info.initial_release_date")
+        self.assertEqual(result, {"sort": [{"sort_by": "rcsb_accession_info.initial_release_date", "direction": "desc"}]})
+    
+
+    def test_multiple_sort_attributes(self):
+        result = create_request_options(sort=["-rcsb_accession_info.initial_release_date", "rcsb_accession_info__deposit_date"])
+        self.assertEqual(result, {"sort": [
+            {"sort_by": "rcsb_accession_info.initial_release_date", "direction": "desc"},
+            {"sort_by": "rcsb_accession_info.deposit_date", "direction": "asc"}
+        ]})
 
 
 
