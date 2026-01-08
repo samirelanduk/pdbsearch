@@ -10,3 +10,6 @@ from pdbsearch.search import search_assemblies, search_mols
 
 if not os.environ.get("PDBSEARCH_NO_UPDATE"):
     update_terms_from_api()
+
+__version__ = "0.5.0"
+__author__ = "Sam Ireland"

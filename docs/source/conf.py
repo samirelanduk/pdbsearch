@@ -24,7 +24,7 @@ copyright = f"{datetime.now().year}, Sam Ireland"
 author = "Sam Ireland"
 
 # The full version, including alpha/beta/rc tags
-release = "0.4.0"
+release = "0.5.0"
 
 
 # -- General configuration ---------------------------------------------------
