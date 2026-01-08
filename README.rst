@@ -107,8 +107,8 @@ arguments:
 
     >>> # Sequence service
     >>> results = pdbsearch.search(protein="MALWMRLLPLLALLALWGPDPAAA")
-    >>> results = pdbsearch.search(dna="ATGC", identity=0.95, evalue=1e-10)
-    >>> results = pdbsearch.search(rna="AUGC")
+    >>> results = pdbsearch.search(dna="ATGCATGCATGC", identity=0.95, evalue=1e-10)
+    >>> results = pdbsearch.search(rna="AUGCAUGCAUGC")
     >>>
     >>> # Sequence motif service
     >>> results = pdbsearch.search(protein="C-X-C-X(2)-[LIVMYFWC]", pattern_type="prosite")
@@ -116,10 +116,10 @@ arguments:
     >>> results = pdbsearch.search(rna="AUG{2}C", pattern_type="regex")
     >>>
     >>> # Structure service (requires the ID of a specific assembly to look for)
-    >>> results = pdbsearch.search(structure="1A2B-2", operator="relaxed_shape_match")
+    >>> results = pdbsearch.search(structure="4HHB-1", operator="relaxed_shape_match")
     >>>
     >>> # Structure motif service (requires a residue pattern in some entry)
-    >>> results = pdbsearch.search(entry="1A2B", residues=(("A", 1), ("B", 2)))
+    >>> results = pdbsearch.search(entry="4HHB", residues=(("A", 10), ("A", 20)))
     >>>
     >>> # Chemical service
     >>> results = pdbsearch.search(smiles="CC(C)C", match_type="graph-relaxed-stereo")
@@ -197,16 +197,16 @@ These will be combined with an ``and`` operator.
         chem_comp__formula_weight__lt=1000,
         pdbx_struct_assembly__details__not__contains="good",
         protein="MALWMRLLPLLALLALWGPDPAAA",
-        dna="ATGC",
-        rna="AUGC",
+        dna="ATGCATGCATGC",
+        rna="AUGCAUGCAUGC",
         identity=0.95,
         evalue=1e-10,
-        structure="1A2B-2",
+        structure="4HHB-1",
         operator="relaxed_shape_match",
-        entry="1A2B",
-        residues=(("A", 1), ("B", 2)),
+        entry="4HHB",
+        residues=(("A", 10), ("A", 20)),
         rmsd=0.5,
-        exchanges={("A", 1): ["ASP"], ("B", 2): ["HIS"]},
+        exchanges={("A", 10): ["ASP"], ("A", 20): ["HIS"]},
         smiles="CC(C)C",
         inchi="InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2",
         match_type="graph-relaxed-stereo",
@@ -273,17 +273,17 @@ Each of the search services has a function for creating a single search node.
     >>>
     >>> # Sequence search nodes
     >>> node = pdbsearch.sequence_node(protein="MALWMRLLPLLALLALWGPDPAAA", identity=0.95, evalue=1e-10)
-    >>> node = pdbsearch.sequence_node(dna="ATGC", identity=0.95, evalue=1e-10)
-    >>> node = pdbsearch.sequence_node(rna="AUGC", identity=0.95, evalue=1e-10)
+    >>> node = pdbsearch.sequence_node(dna="ATGCATGCATGC", identity=0.95, evalue=1e-10)
+    >>> node = pdbsearch.sequence_node(rna="AUGCAUGCAUGC", identity=0.95, evalue=1e-10)
     >>>
     >>> # Sequence motif search node
     >>> node = pdbsearch.seqmotif_node(protein="C-X-C-X(2)-[LIVMYFWC]", pattern_type="prosite")
     >>>
     >>> # Structure search node
-    >>> node = pdbsearch.structure_node("1A2B-2", operator="relaxed_shape_match")
+    >>> node = pdbsearch.structure_node("4HHB-1", operator="relaxed_shape_match")
     >>>
     >>> # Structure motif search node
-    >>> node = pdbsearch.strucmotif_node("1A2B", residues=(("A", 1), ("B", 2)), rmsd=0.5, exchanges={("A", 1): ["ASP"], ("B", 2): ["HIS"]})
+    >>> node = pdbsearch.strucmotif_node("4HHB", residues=(("A", 10), ("A", 20)), rmsd=0.5, exchanges={("A", 10): ["ASP"], ("A", 20): ["HIS"]})
     >>>
     >>> # Chemical search nodes
     >>> node = pdbsearch.chemical_node(smiles="CC(C)C", match_type="graph-relaxed-stereo")
