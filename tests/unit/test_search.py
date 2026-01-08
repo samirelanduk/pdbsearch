@@ -273,7 +273,7 @@ class GetNodesFromKwargsTests(TestCase):
         nodes = _get_nodes_from_kwargs("entry", {"smiles": "CC(C)C"})
         self.assertEqual(len(nodes), 1)
         self.assertEqual(nodes[0], mock_chemical_node.return_value)
-        mock_chemical_node.assert_called_once_with(smiles="CC(C)C", match_type=None)
+        mock_chemical_node.assert_called_once_with(smiles="CC(C)C")
     
 
     @patch.object(search_module, "chemical_node")
@@ -281,7 +281,7 @@ class GetNodesFromKwargsTests(TestCase):
         nodes = _get_nodes_from_kwargs("entry", {"inchi": "InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2"})
         self.assertEqual(len(nodes), 1)
         self.assertEqual(nodes[0], mock_chemical_node.return_value)
-        mock_chemical_node.assert_called_once_with(inchi="InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2", match_type=None)
+        mock_chemical_node.assert_called_once_with(inchi="InChI=1S/C6H12/c1-2-4-6-5-3-1/h1-6H2")
     
 
     @patch.object(search_module, "chemical_node")

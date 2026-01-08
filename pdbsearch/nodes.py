@@ -226,7 +226,9 @@ def _get_text_parameters(key, value, text_chem=False):
     if key not in terms: raise ValueError(f"Invalid term: {key}")
     if not operator:
         is_numeric = "default-match" in terms[key]
-        operator = "equals" if is_numeric else "exact_match"
+        is_exact = "exact-match" in terms[key]
+        operator = "equals" if is_numeric else \
+            "exact_match" if is_exact else "contains_phrase"
     parameters = {"attribute": key, "operator": operator}
     if operator != "exists": parameters["value"] = value
     if negation: parameters["negation"] = True

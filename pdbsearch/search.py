@@ -181,7 +181,7 @@ def _get_nodes_from_kwargs(return_type, kwargs):
                 exchanges=kwargs.get("exchanges")
             ))
         elif key == "smiles" or key == "inchi":
-            nodes.append(chemical_node(
-                **{key: value, "match_type": kwargs.get("match_type")}
-            ))
+            chem_kwargs = {key: value}
+            if mt := kwargs.get("match_type"): chem_kwargs["match_type"] = mt
+            nodes.append(chemical_node(**chem_kwargs))
     return nodes

@@ -227,13 +227,23 @@ class ChemicalNodeTests(TestCase):
 class GetTextParametersTests(TestCase):
 
     def test_exact_match(self):
-        parameters = _get_text_parameters("pdbx_entity_nonpoly__name", "xxx")
-        self.assertEqual(parameters, {"attribute": "pdbx_entity_nonpoly.name", "operator": "exact_match", "value": "xxx"})
+        parameters = _get_text_parameters("rcsb_nonpolymer_entity_annotation__description", "xxx")
+        self.assertEqual(parameters, {"attribute": "rcsb_nonpolymer_entity_annotation.description", "operator": "exact_match", "value": "xxx"})
     
 
     def test_not_exact_match(self):
+        parameters = _get_text_parameters("rcsb_nonpolymer_entity_annotation__description__not", "xxx")
+        self.assertEqual(parameters, {"attribute": "rcsb_nonpolymer_entity_annotation.description", "operator": "exact_match", "negation": True, "value": "xxx"})
+    
+
+    def test_equals_contains(self):
+        parameters = _get_text_parameters("pdbx_entity_nonpoly__name", "xxx")
+        self.assertEqual(parameters, {"attribute": "pdbx_entity_nonpoly.name", "operator": "contains_phrase", "value": "xxx"})
+    
+
+    def test_not_equals_contains(self):
         parameters = _get_text_parameters("pdbx_entity_nonpoly__name__not", "xxx")
-        self.assertEqual(parameters, {"attribute": "pdbx_entity_nonpoly.name", "operator": "exact_match", "negation": True, "value": "xxx"})
+        self.assertEqual(parameters, {"attribute": "pdbx_entity_nonpoly.name", "operator": "contains_phrase", "negation": True, "value": "xxx"})
 
 
     def test_equals(self):
