@@ -2,5 +2,9 @@ Full API
 --------
 
 .. toctree ::
-	api/rcsb
+	api/models
+	api/nodes
+	api/queries
+	api/schema
+	api/search
 

@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from datetime import datetime
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, "source")
 
@@ -19,7 +20,7 @@ sys.path.insert(0, "source")
 # -- Project information -----------------------------------------------------
 
 project = "pdbsearch"
-copyright = "2021, Sam Ireland"
+copyright = f"{datetime.now().year}, Sam Ireland"
 author = "Sam Ireland"
 
 # The full version, including alpha/beta/rc tags

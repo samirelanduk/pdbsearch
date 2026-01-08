@@ -1,14 +1,13 @@
-def add_ga_javascript(app, pagename, templatename, context, doctree):
+def add_plausible_javascript(app, pagename, templatename, context, doctree):
     metatags = context.get("metatags", "")
-    metatags += """<script async src="https://www.googletagmanager.com/gtag/js?id=G-LW2DFLW14H"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag("js", new Date());
-    gtag("config", "G-LW2DFLW14H");
-    </script>"""
+    metatags += """<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-cwZVKAlQ7fvQ70MYi82ab.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>"""
     context["metatags"] = metatags
 
 
 def setup(app):
-    app.connect("html-page-context", add_ga_javascript)
+    app.connect("html-page-context", add_plausible_javascript)

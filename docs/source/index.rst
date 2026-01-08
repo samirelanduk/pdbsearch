@@ -8,9 +8,13 @@ Example
 -------
 
     >>> import pdbsearch
-    >>> codes = pdbsearch.search(limit=5, ligand_name="CU")
-    >>> codes
-    ['3HW7', '2WKO', '2WOF', '2WOH', '2WO0']
+    >>> results = pdbsearch.search(rows=5, chem_comp__name__contains="zinc")
+    >>> print(results["total_count"])
+    26
+    >>> print(results["result_set"])
+    [{'identifier': '1A0B', 'score': 1.0}, {'identifier': '1A1F', 'score': 1.0},
+     {'identifier': '1A1G', 'score': 1.0}, {'identifier': '1A1H', 'score': 1.0},
+     {'identifier': '1A1I', 'score': 1.0}]
 
 Table of Contents
 -----------------

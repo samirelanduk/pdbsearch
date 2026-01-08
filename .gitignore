@@ -13,3 +13,4 @@ profiles
 *.svg
 *.eps
 *old*
+deploy.sh

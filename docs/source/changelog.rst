@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 0.5.0
+~~~~~~~~~~~~~
+
+`8 Jan 2026`
+
+* Overhauled library for new RCSB search API structure.
+
+
 Release 0.4.0
 ~~~~~~~~~~~~~
 
